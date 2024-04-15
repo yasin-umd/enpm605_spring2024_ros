@@ -1,0 +1,14 @@
+@startuml
+participant "Client" as Client
+participant "Server" as Server
+
+Client -> Server : Service Request
+activate Server
+Server -> Server : Process Request in background
+Server --> Client : Acknowledgement of Receipt
+deactivate Server
+
+... some time later ...
+
+Server -> Client : Service Response
+@enduml

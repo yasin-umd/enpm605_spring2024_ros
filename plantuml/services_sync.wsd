@@ -1,0 +1,10 @@
+@startuml
+participant "Client Node" as Client
+participant "Service Server Node" as Server
+
+Client -> Server : Service Request
+activate Server
+Server -> Server : Process Request
+Server --> Client : Service Response
+deactivate Server
+@enduml

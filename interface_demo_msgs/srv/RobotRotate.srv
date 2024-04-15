@@ -1,0 +1,14 @@
+# RobotRotate.srv
+
+# Constants
+uint8 CW=0
+uint8 CCW=1
+
+# Request
+float64 angle # in degrees
+float64 angular_velocity # velocity in rad/s
+uint8 direction # CW or CCW
+---
+# Response
+bool success # True if the command was successful
+string message # message indicating success or error

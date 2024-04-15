@@ -1,0 +1,12 @@
+# RobotStartStop.srv
+
+# Constants
+uint8 START=1
+uint8 STOP=0
+
+# Request
+uint8 action # START or STOP
+---
+# Response
+bool success # True if the command was successful
+string message # message indicating success or error

@@ -1,0 +1,25 @@
+@startuml
+
+participant "Client" as Client
+participant "Server" as Server
+participant "User defined\nexecution method" as User
+
+
+
+activate Client
+activate Server
+Client -> Server : goal request
+Server --> Client : goal response (accept)
+
+' group result request
+    Server -> User : /handle_goal
+    activate User
+    Client ->> Server : result request
+    loop#Gold #LightBlue until result ready
+        User --> Client : publish feedback
+    end
+    User --> Server : set result
+    deactivate User
+' end
+Server -->> Client : result response
+@enduml
