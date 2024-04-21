@@ -88,7 +88,7 @@
 #         """
 #         self.get_logger().info('Executing goal...')
 #         feedback_msg = RobotTarget.Feedback()
-        
+
 #         target = goal_handle.request.target
 
 #         self._goal_x = target.x
@@ -184,36 +184,43 @@ from rclpy.node import Node
 from rclpy.action import ActionServer
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.qos import QoSProfile
-from interface_demo_msgs.action import RobotTarget  # Assuming the package name is interface_msgs
+from interface_demo_msgs.action import (
+    RobotTarget,
+)  # Assuming the package name is interface_msgs
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from rclpy.executors import MultiThreadedExecutor
 from tf_transformations import euler_from_quaternion
 import math
 
+
 class ActionServerDemoInterface(Node):
     def __init__(self, node_name):
         super().__init__(node_name=node_name)
 
         self._action_server = ActionServer(
-            self,   # Node
-            RobotTarget,    # Action type
-            'reach_target', # Action server name
+            self,  # Node
+            RobotTarget,  # Action type
+            "reach_target",  # Action server name
             self.action_server_cb,  # Callback function
-            goal_callback=self.handle_goal, # Goal callback
-            cancel_callback=self.handle_cancel  # Cancel callback
+            goal_callback=self.handle_goal,  # Goal callback
+            cancel_callback=self.handle_cancel,  # Cancel callback
         )
 
         # Publisher to publish velocity commands
-        self._cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self._cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
 
         # Subscriber to get odometry data
-        # We are using a MutuallyExclusiveCallbackGroup to ensure 
+        # We are using a MutuallyExclusiveCallbackGroup to ensure
         # that the callback is executed in a separate thread from the main thread
         qos_profile = QoSProfile(depth=10)
         self._odometry_cbg = MutuallyExclusiveCallbackGroup()
         self._odometry_sub = self.create_subscription(
-            Odometry, 'odom', self.odometry_cb, qos_profile, callback_group=self._odometry_cbg
+            Odometry,
+            "odom",
+            self.odometry_cb,
+            qos_profile,
+            callback_group=self._odometry_cbg,
         )
 
         # Initialize variables
@@ -223,27 +230,27 @@ class ActionServerDemoInterface(Node):
         self._robot_y = 0.0
         self._robot_yaw = 0.0
         self._goal_reached = False
-        
+
         # Proportional control gains
         self._kl = 0.5
         self._ka = 0.8
-        
+
         # Print the server is available
         output = "\n============================================="
         output += "\nAction Server 'reach_target' is available"
         output += "\n============================================="
-        
+
         self.get_logger().info(output)
 
     def handle_goal(self, goal_request):
-        self.get_logger().info('Received new goal request')
+        self.get_logger().info("Received new goal request")
         self._goal_x = goal_request.target.x
         self._goal_y = goal_request.target.y
         self._goal_reached = False
         return rclpy.action.GoalResponse.ACCEPT
 
-    def handle_cancel(self, goal_handle):
-        self.get_logger().info('Received cancel request')
+    def handle_cancel(self):
+        self.get_logger().info("Received cancel request")
         return rclpy.action.CancelResponse.ACCEPT
 
     def odometry_cb(self, msg: Odometry):
@@ -253,65 +260,57 @@ class ActionServerDemoInterface(Node):
             msg.pose.pose.orientation.x,
             msg.pose.pose.orientation.y,
             msg.pose.pose.orientation.z,
-            msg.pose.pose.orientation.w
+            msg.pose.pose.orientation.w,
         )
         _, _, self._robot_yaw = euler_from_quaternion(quaternion)
 
     def action_server_cb(self, goal_handle):
-        self.get_logger().info('Executing goal...')
-        # feedback_msg = RobotTarget.Feedback()
-        rate = self.create_rate(10)  # 10 Hz
+        self.get_logger().info(f"Executing goal: ({self._goal_x},{self._goal_y})")
+        rate = self.create_rate(1)  # 1 Hz
 
         while not self._goal_reached:
             distance_to_goal = math.sqrt(
-                (self._goal_x - self._robot_x) ** 2 + (self._goal_y - self._robot_y) ** 2
+                (self._goal_x - self._robot_x) ** 2
+                + (self._goal_y - self._robot_y) ** 2
             )
-            # angle_to_goal = math.atan2(
-            #     self._goal_y - self._robot_y, self._goal_x - self._robot_x
-            # )
-            # w = angle_to_goal - self._robot_yaw
-            # if w > math.pi:
-            #     w -= 2 * math.pi
-            # elif w < -math.pi:
-            #     w += 2 * math.pi
 
-            # angular_velocity = self._ka * w
-            # angular_velocity = max(min(angular_velocity, 1.82), -1.82)
-            # linear_velocity = min(self._kl * distance_to_goal, 0.26)
-
-            # twist = Twist()
-            # twist.linear.x = linear_velocity
-            # twist.angular.z = angular_velocity
-            # self._cmd_vel_pub.publish(twist)
-
-            # feedback_msg.distance_to_goal = distance_to_goal
-            # goal_handle.publish_feedback(feedback_msg)
-
+            # If robot is within 5 cm of the goal
             if distance_to_goal < 0.05:
                 self._goal_reached = True
                 twist = Twist()
                 self._cmd_vel_pub.publish(twist)
                 self.get_logger().info("Goal reached.")
-                
-                # Prepare the result message
-                result = RobotTarget.Result()
-                result.success = True
-                result.message = "Goal reached"
-                goal_handle.succeed()
-                return result
-            
-            # Continue executing motion control
-            self.compute_and_publish_motion(distance_to_goal, goal_handle)
+                try:
+                    # Prepare the result message
+                    goal_handle.succeed()
+                    result = RobotTarget.Result()
+                    result.success = True
+                    result.message = "Goal reached"
+                    return result
+                except Exception as e:
+                    self.get_logger().error(f'Error processing goal: {str(e)}')
+                    goal_handle.abort()
+                    result = RobotTarget.Result()
+                    result.success = False
+                    result.message = "Exception occurred"
+                    return result
+            else:
+                # Continue executing motion control
+                self.adjust_robot_motion(distance_to_goal, goal_handle)
             rate.sleep()
-            
+
         # Log if exited loop without reaching the goal (should not happen in normal operation)
         if not self._goal_reached:
             self.get_logger().warn("Exited loop without reaching goal.")
 
-    def compute_and_publish_motion(self, distance_to_goal, goal_handle):
-        angle_to_goal = math.atan2(self._goal_y - self._robot_y, self._goal_x - self._robot_x)
+    def adjust_robot_motion(self, distance_to_goal, goal_handle):
+        angle_to_goal = math.atan2(
+            self._goal_y - self._robot_y, self._goal_x - self._robot_x
+        )
         angular_velocity = self.calculate_angular_velocity(angle_to_goal)
-        linear_velocity = min(self._kl * distance_to_goal, 0.26)  # Proportional control for linear velocity
+        linear_velocity = min(
+            self._kl * distance_to_goal, 0.26
+        )  # Proportional control for linear velocity
 
         # Publish velocity command
         twist = Twist()
@@ -323,8 +322,7 @@ class ActionServerDemoInterface(Node):
         feedback_msg = RobotTarget.Feedback()
         feedback_msg.distance_to_goal = distance_to_goal
         goal_handle.publish_feedback(feedback_msg)
-    
-    
+
     def calculate_angular_velocity(self, angle_to_goal):
         # Adjust angle to ensure proper rotation direction
         if angle_to_goal < 0:
@@ -340,6 +338,7 @@ class ActionServerDemoInterface(Node):
         # Proportional control for angular velocity, with limit for turtlebot max angular velocity
         angular_velocity = self._ka * w
         return max(min(angular_velocity, 1.82), -1.82)
+
 
 def main(args=None):
     rclpy.init(args=args)
