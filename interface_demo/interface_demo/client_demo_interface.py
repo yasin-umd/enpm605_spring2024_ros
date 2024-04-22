@@ -15,7 +15,9 @@ class ClientDemoInterface(Node):
         # A callback group is needed to avoid deadlocks
         self._mutex_cbg = MutuallyExclusiveCallbackGroup()
         self._start_stop_client = self.create_client(
-            RobotStartStop, "robot_start_stop", callback_group=self._mutex_cbg
+            srv_type=RobotStartStop, 
+            srv_name="robot_start_stop", 
+            callback_group=self._mutex_cbg
         )
 
         # Create a service client to send requests to rotate the robot
@@ -132,11 +134,9 @@ class ClientDemoInterface(Node):
         # Synchronous call
         future = self._start_stop_client.call(request)
         try:
-            message = future.message
-            success = future.success
-            self.get_logger().info(f"Response message: {message}")
-            self.get_logger().info(f"Response success: {success}")
-            if success:
+            self.get_logger().info(f"Response message: {future.message}")
+            self.get_logger().info(f"Response success: {future.success}")
+            if future.success:
                 if action == RobotStartStop.Request.START:
                     self._move_requested = True
                 elif action == RobotStartStop.Request.STOP:
