@@ -1,0 +1,55 @@
+@startuml
+autonumber
+' Response is under the arrow
+skinparam responseMessageBelowArrow true
+!pragma teoz true
+
+box "ClientDemoInterface" #LightBlue
+participant "_start_stop_client" as start_stop_client
+participant "_robot_rotate_client" as robot_rotate_client
+end box
+box "MessageDemoInterface" #FFBBBB
+participant "_start_stop_srv" as start_stop_srv
+participant "robot_start_stop_cb()" as robot_start_stop_cb
+end box
+box "ServerDemoInterface" #DAF7A6
+participant "_robot_rotate_srv" as robot_rotate_srv
+participant "robot_command_cb()" as robot_command_cb
+end box
+
+
+' Stopping the robot
+== Stopping the robot ==
+activate start_stop_srv
+activate robot_rotate_srv
+start_stop_client -> start_stop_srv : request to stop
+activate start_stop_client
+start_stop_srv -> robot_start_stop_cb : handle request
+activate robot_start_stop_cb
+deactivate start_stop_client
+start_stop_client <- robot_start_stop_cb: return response
+deactivate robot_start_stop_cb
+
+
+' Rotating the robot
+== Rotating the robot ==
+robot_rotate_client -> robot_rotate_srv : request to rotate
+
+activate robot_rotate_client
+robot_rotate_srv -> robot_command_cb : handle request
+activate robot_command_cb
+deactivate robot_rotate_client
+robot_rotate_client <- robot_command_cb: return response
+deactivate robot_command_cb
+
+' Starting the robot
+== Starting the robot ==
+start_stop_client -> start_stop_srv : request to start
+activate start_stop_client
+start_stop_srv -> robot_start_stop_cb : handle request
+activate robot_start_stop_cb
+deactivate start_stop_client
+start_stop_client <- robot_start_stop_cb: return response
+deactivate robot_start_stop_cb
+
+@enduml

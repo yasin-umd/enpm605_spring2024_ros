@@ -181,7 +181,7 @@
 
 import rclpy
 from rclpy.node import Node
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.qos import QoSProfile
 from interface_demo_msgs.action import (
@@ -199,10 +199,10 @@ class ActionServerDemoInterface(Node):
         super().__init__(node_name=node_name)
 
         self._action_server = ActionServer(
-            self,  # Node
-            RobotTarget,  # Action type
-            "reach_target",  # Action server name
-            self.action_server_cb,  # Callback function
+            node=self,  # Node
+            action_type=RobotTarget,  # Action type
+            action_name="reach_target",  # Action server name
+            execute_callback=self.action_server_cb,  # Callback function
             goal_callback=self.handle_goal,  # Goal callback
             cancel_callback=self.handle_cancel,  # Cancel callback
         )
@@ -232,8 +232,8 @@ class ActionServerDemoInterface(Node):
         self._goal_reached = False
 
         # Proportional control gains
-        self._kl = 0.5
-        self._ka = 0.8
+        self._kl = 0.5 # Linear velocity gain
+        self._ka = 0.8 # Angular velocity gain
 
         # Print the server is available
         output = "\n============================================="
@@ -247,11 +247,13 @@ class ActionServerDemoInterface(Node):
         self._goal_x = goal_request.target.x
         self._goal_y = goal_request.target.y
         self._goal_reached = False
-        return rclpy.action.GoalResponse.ACCEPT
+        # Let the action client know that the goal is accepted
+        return GoalResponse.ACCEPT
 
-    def handle_cancel(self):
+    def handle_cancel(self, goal_handle):
         self.get_logger().info("Received cancel request")
-        return rclpy.action.CancelResponse.ACCEPT
+        # Set the goal as canceled
+        return CancelResponse.ACCEPT
 
     def odometry_cb(self, msg: Odometry):
         self._robot_x = msg.pose.pose.position.x
@@ -269,6 +271,13 @@ class ActionServerDemoInterface(Node):
         rate = self.create_rate(1)  # 1 Hz
 
         while not self._goal_reached:
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                result = RobotTarget.Result()
+                result.success = False
+                result.message = "Goal canceled"
+                return result
+            
             distance_to_goal = math.sqrt(
                 (self._goal_x - self._robot_x) ** 2
                 + (self._goal_y - self._robot_y) ** 2
@@ -288,7 +297,7 @@ class ActionServerDemoInterface(Node):
                     result.message = "Goal reached"
                     return result
                 except Exception as e:
-                    self.get_logger().error(f'Error processing goal: {str(e)}')
+                    self.get_logger().error(f"Error processing goal: {str(e)}")
                     goal_handle.abort()
                     result = RobotTarget.Result()
                     result.success = False

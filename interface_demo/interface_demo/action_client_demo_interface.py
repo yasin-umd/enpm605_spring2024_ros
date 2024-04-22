@@ -13,12 +13,13 @@ class ActionClientDemoInterface(Node):
         
         # List of goals to send from a timer
         self._goals = [
-            (0.0, 2.0),
-            (2.0, 2.0),
-            (2.0, 0.0),
+            (4.0, 4.0),
+            (4.0, -4.0),
+            (-4.0, -4.0),
+            (-4.0, 4.0)
         ]
         
-        self._timer = self.create_timer(8.0, self.timer_callback)
+        self._timer = self.create_timer(5.0, self.timer_callback)
 
     def wait_for_action_server(self):
         """
@@ -35,9 +36,11 @@ class ActionClientDemoInterface(Node):
         """
         # If list is not empty
         if self._goals:
+            # If there is only one goal left, cancel it
             if len(self._goals) == 1:
                 self.cancel_goal()
             else:
+                # Send the next goal in the list and remove it from the list
                 self.send_goal(self._goals.pop(0))
             
 
@@ -80,7 +83,7 @@ class ActionClientDemoInterface(Node):
             
     def cancel_response_callback(self, future):
         cancel_response = future.result()
-        if cancel_response.goals_canceling:
+        if len(cancel_response.goals_canceling) > 0:
             self.get_logger().info('Goal successfully cancelled')
         else:
             self.get_logger().info('Goal cancel request failed')
