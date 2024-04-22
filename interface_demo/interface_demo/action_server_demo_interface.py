@@ -213,13 +213,12 @@ class ActionServerDemoInterface(Node):
         # Subscriber to get odometry data
         # We are using a MutuallyExclusiveCallbackGroup to ensure
         # that the callback is executed in a separate thread from the main thread
-        qos_profile = QoSProfile(depth=10)
         self._odometry_cbg = MutuallyExclusiveCallbackGroup()
         self._odometry_sub = self.create_subscription(
             Odometry,
             "odom",
             self.odometry_cb,
-            qos_profile,
+            10,
             callback_group=self._odometry_cbg,
         )
 
@@ -283,8 +282,8 @@ class ActionServerDemoInterface(Node):
                 + (self._goal_y - self._robot_y) ** 2
             )
 
-            # If robot is within 5 cm of the goal
-            if distance_to_goal < 0.05:
+            # If robot is within 2 cm of the goal
+            if distance_to_goal < 0.02:
                 self._goal_reached = True
                 twist = Twist()
                 self._cmd_vel_pub.publish(twist)
@@ -309,8 +308,8 @@ class ActionServerDemoInterface(Node):
             rate.sleep()
 
         # Log if exited loop without reaching the goal (should not happen in normal operation)
-        if not self._goal_reached:
-            self.get_logger().warn("Exited loop without reaching goal.")
+        # if not self._goal_reached:
+        #     self.get_logger().warn("Exited loop without reaching goal.")
 
     def adjust_robot_motion(self, distance_to_goal, goal_handle):
         angle_to_goal = math.atan2(
