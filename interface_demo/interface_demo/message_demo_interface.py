@@ -9,6 +9,11 @@ class MessageDemoInterface(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
         # Get the value for the environment variable TURTLEBOT3_MODEL
+        model = os.getenv("TURTLEBOT3_MODEL")
+        # check if the environment variable is set
+        if model is None:
+            self.get_logger().error("Environment variable TURTLEBOT3_MODEL is not set")
+            return
         self._model = MessageDemoInterface.convert_model_to_int(os.getenv("TURTLEBOT3_MODEL"))
         
         # Variable to hold the current linear velocity of the robot
@@ -85,7 +90,7 @@ class MessageDemoInterface(Node):
         if request.action == RobotStartStop.Request.START:
             self._stop = False
             response.message = "Robot started"
-        else:
+        elif request.action == RobotStartStop.Request.STOP:
             self._stop = True
             response.message = "Robot stopped"
         response.success = True
