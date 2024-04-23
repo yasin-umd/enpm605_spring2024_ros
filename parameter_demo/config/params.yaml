@@ -1,0 +1,4 @@
+parameter_demo:  # Name of your Node
+  ros__parameters:
+    my_param: 10
+    # my_other_param: 3.5

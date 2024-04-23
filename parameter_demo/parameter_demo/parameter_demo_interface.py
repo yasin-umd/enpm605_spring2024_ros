@@ -10,6 +10,9 @@ from rcl_interfaces.msg import ParameterEvent
 class ParameterDemoInterface(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
+        
+        # timer to display parameter value every 1
+        self._timer = self.create_timer(1, self.timer_callback)
 
         # ---------------------- Declaring Parameters ---------------------- #
         # Parameter descriptor
@@ -71,6 +74,11 @@ class ParameterDemoInterface(Node):
                     f"'use_sim_time' parameter changed on /talker to: {new_value}"
                 )
 
+    def timer_callback(self):
+        self._my_param = (
+            self.get_parameter("my_param").get_parameter_value().integer_value
+        )
+        self.get_logger().info(f"Current value of my_param: {self._my_param}")
 
 def main(args=None):
     rclpy.init(args=args)
