@@ -7,6 +7,7 @@ def generate_launch_description():
     param_demo = Node(
         package="parameter_demo",
         executable="param_demo",
+        parameters=[{"my_param": 10}],
         output="screen",
     )
 

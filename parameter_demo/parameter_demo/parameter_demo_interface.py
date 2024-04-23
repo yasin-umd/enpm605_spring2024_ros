@@ -10,9 +10,6 @@ from rcl_interfaces.msg import ParameterEvent
 class ParameterDemoInterface(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
-        
-        # timer to display parameter value every 1
-        self._timer = self.create_timer(1, self.timer_callback)
 
         # ---------------------- Declaring Parameters ---------------------- #
         # Parameter descriptor
@@ -25,6 +22,13 @@ class ParameterDemoInterface(Node):
 
         # Declare the parameter with a default value and a descriptor
         self.declare_parameter("my_param", 5, descriptor=param_descriptor)
+        
+        # Command Line Arguments ---------------------- #
+        # self.declare_parameter("cli_arg", "default_value")
+        # Retrieve the parameter
+        # self._cli_arg = self.get_parameter("cli_arg").get_parameter_value().string_value
+        # # # Use the parameter
+        # self.get_logger().info(f"Received cli_param: {self._cli_arg}")
 
         # ---------------------- Retrieving Parameters ---------------------- #
         # Getting the parameter
@@ -32,6 +36,9 @@ class ParameterDemoInterface(Node):
             self.get_parameter("my_param").get_parameter_value().integer_value
         )
         self.get_logger().info(f"Initial value of my_parameter: {self._my_param}")
+        
+        # Command Line Arguments ---------------------- #
+        
 
         # ---------------------- Setting Parameters ---------------------- #
         # # Setting the parameter
@@ -43,13 +50,18 @@ class ParameterDemoInterface(Node):
 
         # ---------------------- Parameter Changes for Current Node ---------------------- #
         # callback for parameter changes
-        self.add_on_set_parameters_callback(self.parameter_callback)
+        # self.add_on_set_parameters_callback(self.parameter_callback)
 
         # ---------------------- Parameter Events for All Nodes ---------------------- #
         # subscribe to /parameter_events topic
-        self._sub_parameter_events = self.create_subscription(
-            ParameterEvent, "/parameter_events", self.parameter_event_callback, 10
-        )
+        # self._sub_parameter_events = self.create_subscription(
+        #     ParameterEvent, "/parameter_events", self.parameter_event_callback, 10
+        # )
+        
+        
+        # timer to display parameter value every 1
+        self._timer = self.create_timer(1, self.timer_callback)
+        
 
     def parameter_callback(self, params):
         """
