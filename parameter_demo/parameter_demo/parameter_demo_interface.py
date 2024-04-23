@@ -4,7 +4,6 @@ import rclpy
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.parameter import Parameter
 
-
 class ParameterDemoInterface(Node):
     def __init__(self, node_name):
         super().__init__(node_name)
@@ -18,22 +17,22 @@ class ParameterDemoInterface(Node):
         )
 
         # Declare the parameter with a default value and a descriptor
-        self.declare_parameter("my_parameter", 5, descriptor=param_descriptor)
+        self.declare_parameter("my_param", 5, descriptor=param_descriptor)
 
         # Getting the parameter
-        self._my_parameter = (
-            self.get_parameter("my_parameter").get_parameter_value().integer_value
+        self._my_param = (
+            self.get_parameter("my_param").get_parameter_value().integer_value
         )
-        self.get_logger().info(f"Initial value of my_parameter: {self._my_parameter}")
+        self.get_logger().info(f"Initial value of my_parameter: {self._my_param}")
 
         # Setting the parameter
         self.set_parameters(
-            [Parameter("my_parameter", rclpy.Parameter.Type.INTEGER, 7)]
+            [Parameter("my_param", rclpy.Parameter.Type.INTEGER, 7)]
         )
-        self._my_parameter = (
-            self.get_parameter("my_parameter").get_parameter_value().integer_value
+        self._my_param = (
+            self.get_parameter("my_param").get_parameter_value().integer_value
         )
-        self.get_logger().info(f"New value of my_parameter: {self._my_parameter}")
+        self.get_logger().info(f"New value of my_param: {self._my_param}")
 
 
 def main(args=None):
