@@ -9,40 +9,22 @@ class ActionClientDemoInterface(Node):
         super().__init__(node_name=node_name)
         self._goal_handle = None
         self._action_client = ActionClient(self, RobotTarget, "reach_target")
-        self.wait_for_action_server()
-        
+        while not self._action_client.wait_for_server(timeout_sec=0.5):
+            self.get_logger().info("Waiting for the action server 'reach_target'...")
+
         # List of goals to send from a timer
-        self._goals = [
-            (4.0, 4.0),
-            (4.0, -4.0),
-            (-4.0, -4.0),
-            (-4.0, 4.0)
-        ]
-        
+        self._goals = [(4.0, 4.0), (4.0, -4.0), (-4.0, -4.0), (-4.0, 4.0)]
+        # Timer to send goals every 2 seconds (if list is not empty)
         self._timer = self.create_timer(5.0, self.timer_callback)
 
-    def wait_for_action_server(self):
-        """
-        Wait for the action server to be available before sending a goal
-        """
-        while not self._action_client.wait_for_server(timeout_sec=1.0):
-            self.get_logger().info("Waiting for the action server 'reach_target'...")
-        self.get_logger().info("Action server is now available.")
-        # self.send_goal((0.0, 2.0))
-        
     def timer_callback(self):
         """
         Send a goal to the action server every 2 seconds
         """
         # If list is not empty
         if self._goals:
-            # If there is only one goal left, cancel it
-            if len(self._goals) == 1:
-                self.cancel_goal()
-            else:
-                # Send the next goal in the list and remove it from the list
-                self.send_goal(self._goals.pop(0))
-            
+            # Send the next goal in the list and remove it from the list
+            self.send_goal(self._goals.pop(0))
 
     def send_goal(self, goal):
         """
@@ -53,7 +35,7 @@ class ActionClientDemoInterface(Node):
         goal_msg.target.x = goal[0]
         goal_msg.target.y = goal[1]
         self._send_goal_future = self._action_client.send_goal_async(
-            goal_msg, feedback_callback=self.feedback_callback
+            goal_msg, feedback_callback=self.feedback_cb
         )
         # It's good practice to handle the future result even if we don't expect to use it
         self._send_goal_future.add_done_callback(self.goal_response_callback)
@@ -61,34 +43,22 @@ class ActionClientDemoInterface(Node):
     def goal_response_callback(self, future):
         self._goal_handle = future.result()
         if not self._goal_handle.accepted:
-            self.get_logger().info('Goal rejected by server 😢')
-        else:   
-            self.get_logger().info('Goal accepted by server 😊')
+            self.get_logger().info("Goal rejected by server 😢")
+        else:
+            self.get_logger().info("Goal accepted by server 😊")
             self.get_result_future = self._goal_handle.get_result_async()
             self.get_result_future.add_done_callback(self.result_callback)
 
     def result_callback(self, future):
         result = future.result().result
         if result:
-            self.get_logger().info(f'Goal completed - Success: {result.success}, Message: "{result.message}"')
+            self.get_logger().info(
+                f'Goal completed - Success: {result.success}, Message: "{result.message}"'
+            )
         else:
             self.get_logger().info("Goal failed 😢")
-            
-    def cancel_goal(self):
-        if self._goal_handle:
-            self.get_logger().info('Cancelling goal')
-            # Send a cancel request
-            cancel_future = self._goal_handle.cancel_goal_async()
-            cancel_future.add_done_callback(self.cancel_response_callback)
-            
-    def cancel_response_callback(self, future):
-        cancel_response = future.result()
-        if len(cancel_response.goals_canceling) > 0:
-            self.get_logger().info('Goal successfully cancelled')
-        else:
-            self.get_logger().info('Goal cancel request failed')
 
-    def feedback_callback(self, feedback_msg):
+    def feedback_cb(self, feedback_msg):
         self.get_logger().info(
             f"Received feedback: {feedback_msg.feedback.distance_to_goal}"
         )

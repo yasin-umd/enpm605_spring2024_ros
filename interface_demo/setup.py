@@ -19,9 +19,9 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "message_demo = interface_demo.message_demo_interface:main",
-            "server_demo = interface_demo.server_demo_interface:main",
-            "client_demo = interface_demo.client_demo_interface:main",
+            "msg_demo = interface_demo.message_demo_interface:main",
+            "srv_server_demo = interface_demo.server_demo_interface:main",
+            "srv_client_demo = interface_demo.client_demo_interface:main",
             "action_server_demo = interface_demo.action_server_demo_interface:main",
             "action_client_demo = interface_demo.action_client_demo_interface:main",
         ],
