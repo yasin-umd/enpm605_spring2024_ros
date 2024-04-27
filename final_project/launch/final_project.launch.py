@@ -57,7 +57,7 @@ def launch_setup(context, *args, **kwargs):
     # Environment Startup
     environment_startup = Node(
         package='final_project',
-        executable='environment_startup_node.py',
+        executable='environment_startup.py',
         output='screen',
         parameters=[
             {'user_config_path': user_config_path},
