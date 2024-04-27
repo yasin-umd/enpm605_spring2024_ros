@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 import rclpy
 import time
 
@@ -11,20 +10,20 @@ def main():
 
     startup_node = EnvironmentStartup()
 
-    # Wait five seconds for gazebo to start up
+    # Wait 2 seconds for gazebo to start up
     time.sleep(2)
 
     # Spawn sensors
     startup_node.spawn_sensors()
-
-    # Spawn parts in bins
-    # startup_node.spawn_bin_parts()
-
     try:
         rclpy.spin(startup_node)
-    except:
+    except KeyboardInterrupt:
+        startup_node.get_logger().info("Keyboard Interrupt (SIGINT) detected")
+    finally:
         startup_node.destroy_node()
+        # clean up the node
         rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()

@@ -1,33 +1,12 @@
-#!/usr/bin/env python3
-
-import math
 import yaml
 import xml.etree.ElementTree as ET
-from random import randint
-
 import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor
-
-from rclpy.qos import QoSProfile, DurabilityPolicy
-
-from final_project.tf2_geometry_msgs import do_transform_pose
-from final_project.utilities import quaternion_from_euler, euler_from_quaternion, convert_pi_string_to_float
-
-from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
-
-from geometry_msgs.msg import (
-    Pose,
-    PoseStamped,
-    Vector3
-)
-
-
-
+from mage_msgs.msg import Part
 from gazebo_msgs.srv import SpawnEntity
-from std_srvs.srv import Empty
 from final_project.spawn_params import (
     SpawnParams,
     SensorSpawnParams,
@@ -201,12 +180,12 @@ class EnvironmentStartup(Node):
             pass
 
 
-        if not part.type in PartSpawnParams.part_types:
+        if part.type not in PartSpawnParams.part_types:
             self.get_logger().warn(
                 f"{part_info['type']} is not a valid part type")
             return (False, part)
 
-        if not part.color in PartSpawnParams.colors:
+        if part.color not in PartSpawnParams.colors:
             self.get_logger().warn(
                 f"{part_info['color']} is not a valid part color")
             return (False, part)
