@@ -38,6 +38,8 @@ class EnvironmentStartup(Node):
 
         self.user_config = self.read_yaml(
             self.get_parameter('user_config_path').get_parameter_value().string_value)
+        
+        # self.get_logger().info(f"User config path: {self.user_config}")
 
         # Create service client to spawn objects into gazebo
         self.spawn_client = self.create_client(SpawnEntity, '/spawn_entity')
@@ -177,7 +179,8 @@ class EnvironmentStartup(Node):
         try:
             part.rotation = str(part_info['rotation'])
         except KeyError:
-            pass
+            self.get_logger().warn("Rotation is not specified")
+            return (False, part)
 
 
         if part.type not in PartSpawnParams.part_types:

@@ -25,6 +25,11 @@ def launch_setup(context, *args, **kwargs):
     world_file_name = 'final.world'
     world_path = os.path.join(pkg_share, 'worlds', world_file_name)
 
+    if not os.path.exists(world_path):
+        rclpy.logging.get_logger('Launch File').fatal(
+            f"'final.world' not found in config directory: {world_path}.")
+        exit()
+
     user_config_path = os.path.join(
         pkg_share, 'config', "sensors.yaml")
 
@@ -80,6 +85,7 @@ def launch_setup(context, *args, **kwargs):
         get_package_share_directory('final_project'),
         'maps',
         'final2_map.yaml')
+    
 
     # Navigation2 node
     turtlebot3_navigation2_cmd = IncludeLaunchDescription(
@@ -88,8 +94,7 @@ def launch_setup(context, *args, **kwargs):
              "/launch", "/navigation2.launch.py"]
         ),
         launch_arguments={
-            'use_sim_time': 'true',
-            'map': map_path,
+            'use_sim_time': 'true'
         }.items()
     )
 
@@ -154,8 +159,8 @@ def launch_setup(context, *args, **kwargs):
         robot_state_publisher_cmd,
         spawn_turtlebot_cmd,
         turtlebot3_navigation2_cmd,
-        sensor_tf_broadcaster,
-        static_transform_cmd
+        # sensor_tf_broadcaster,
+        # static_transform_cmd
     ]
 
     return nodes_to_start

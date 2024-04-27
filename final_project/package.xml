@@ -18,6 +18,7 @@
   <depend>mage_msgs</depend>
   <depend>turtlebot3_gazebo</depend>
   <depend>turtlebot3_navigation2</depend>
+  <depend>nav2_bringup</depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>xacro</exec_depend>
