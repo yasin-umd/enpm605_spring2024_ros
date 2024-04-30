@@ -310,7 +310,7 @@ class KDLFrameDemo(Node):
             self._right_bin_parts.append(part_pose)
 
 
-class BroadcasterDemo(Node):
+class BroadcasterInterfaceDemo(Node):
     """
     Class to broadcast Frames. This class consists of a static broadcaster and a dynamic broadcaster.
     """
@@ -499,3 +499,15 @@ class BroadcasterDemo(Node):
             self.get_logger().fatal(
                 f"Could not get transform between world and {self._part_frame}: {str(ex)}"
             )
+            
+def broadcaster_main(args=None):
+    rclpy.init(args=args)
+    node = BroadcasterInterfaceDemo("broadcaster_demo")
+    rclpy.add_node(node)
+    try:
+        rclpy.spin()
+    except KeyboardInterrupt:
+        node.get_logger().info("Keyboard Interrupt (SIGINT) detected")
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
