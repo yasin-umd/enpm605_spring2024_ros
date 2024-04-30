@@ -1,4 +1,3 @@
-
 from typing import Tuple
 import rclpy
 import PyKDL
@@ -10,10 +9,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 import tf2_ros
 import math
-from ariac_msgs.msg import (
-    AdvancedLogicalCameraImage as AriacAdvancedLogicalCameraImage,
-    Part as AriacPart,
-)
+from mage_msgs.msg import AdvancedLogicalCameraImage
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.parameter import Parameter
 
@@ -167,7 +163,7 @@ class KDLFrameDemo(Node):
 
         # subscriber to the topic /ariac/sensors/left_bins_camera/image
         self._left_bins_camera_sub = self.create_subscription(
-            AriacAdvancedLogicalCameraImage,
+            AdvancedLogicalCameraImage,
             "/ariac/sensors/left_bins_camera/image",
             self.left_bins_camera_callback,
             qos_profile_sensor_data,
@@ -175,7 +171,7 @@ class KDLFrameDemo(Node):
 
         # subscriber to the topic /ariac/sensors/right_bins_camera/image
         self._right_bins_camera_sub = self.create_subscription(
-            AriacAdvancedLogicalCameraImage,
+            AdvancedLogicalCameraImage,
             "/ariac/sensors/right_bins_camera/image",
             self.right_bins_camera_callback,
             qos_profile_sensor_data,
@@ -279,7 +275,7 @@ class KDLFrameDemo(Node):
 
         return pose
 
-    def left_bins_camera_callback(self, msg: AriacAdvancedLogicalCameraImage):
+    def left_bins_camera_callback(self, msg: AdvancedLogicalCameraImage):
         """
         Callback function for the left_bins_camera subscriber.
         """
@@ -294,7 +290,7 @@ class KDLFrameDemo(Node):
         for part_pose in msg.part_poses:
             self._left_bin_parts.append(part_pose)
 
-    def right_bins_camera_callback(self, msg: AriacAdvancedLogicalCameraImage):
+    def right_bins_camera_callback(self, msg: AdvancedLogicalCameraImage):
         """
         Callback function for the right_bins_camera subscriber.
         """
@@ -310,109 +306,79 @@ class KDLFrameDemo(Node):
             self._right_bin_parts.append(part_pose)
 
 
-class BroadcasterInterfaceDemo(Node):
+class BroadcasterListenerInterfaceDemo(Node):
     """
-    Class to broadcast Frames. This class consists of a static broadcaster and a dynamic broadcaster.
+    Class to broadcast Frames. This class consists of a dynamic broadcaster.
     """
 
     def __init__(self, node_name):
         super().__init__(node_name)
 
+        # Since we are using Gazebo, we need to set the use_sim_time parameter to True
         sim_time = Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
         self.set_parameters([sim_time])
 
-        # Get the listen parameter
-        self._listen_param = (
-            self.declare_parameter("listen", False).get_parameter_value().bool_value
-        )
+        # List of parts detected by the camera
+        # The lists contain AdvancedLogicalCameraImage objects
+        self._detected_parts = []
 
-        # List of parts detected in the left and right bins
-        # These lists contain AdvancedLogicalCameraImage objects
-        self._left_bin_parts = []
-        self._right_bin_parts = []
-
-        # Flag to check if the purple pump is found
-        self._found_purple_pump = False
         # Information for broadcasting
-        self._part_parent_frame = None
-        self._part_frame = "purple_part"
-        self._part_pose = None
+        # Parent frame
+        self._part_parent_frame = "logical_camera_link"
+        # Child frame
+        self._part_frame = "cube"
 
-        # Information about the parts we are looking for
-        self._find_part_color = AriacPart.PURPLE
-        self._find_part_type = AriacPart.PUMP
+        # Flag to check if the part is found
+        self._part_found = False
+        # Counter to limit the number of broadcasts
+        self._broadcast_count = 0
+        # Flag to check if the transform is done
+        self._transform_done = False
 
         # subscriber to the topic /ariac/sensors/left_bins_camera/image
-        self._left_bins_camera_sub = self.create_subscription(
-            AriacAdvancedLogicalCameraImage,
-            "/ariac/sensors/left_bins_camera/image",
-            self.left_bins_camera_callback,
-            qos_profile_sensor_data,
-        )
-
-        # subscriber to the topic /ariac/sensors/right_bins_camera/image
-        self._right_bins_camera_sub = self.create_subscription(
-            AriacAdvancedLogicalCameraImage,
-            "/ariac/sensors/right_bins_camera/image",
-            self.right_bins_camera_callback,
+        self._camera_sub = self.create_subscription(
+            AdvancedLogicalCameraImage,
+            "/mage/advanced_logical_camera/image",
+            self.camera_callback,
             qos_profile_sensor_data,
         )
 
         # timer for finding the part in the left and right bins
-        self._find_part_timer = self.create_timer(0.05, self.find_part_callback)
+        self._detect_part_timer = self.create_timer(0.05, self.check_detected_part_cb)
 
-        # List of transforms to be broadcast
+        # List of transforms to be broadcasted
         self._transforms = []
 
         # Create a dynamic broadcaster
         self._tf_dynamic_broadcaster = TransformBroadcaster(self)
 
-        if self._listen_param:
-            # Create a transform buffer and listener
-            self._tf_buffer = Buffer()
-            self._tf_listener = TransformListener(self._tf_buffer, self)
+        # Create a transform buffer and listener
+        self._tf_buffer = Buffer()
+        self._tf_listener = TransformListener(self._tf_buffer, self)
 
-            # Listen to the transform between frames periodically
-            self._listener_timer = self.create_timer(0.5, self._listener_cb)
+        # Listen to the transform between frames periodically
+        self._listener_timer = self.create_timer(0.5, self._listener_cb)
 
-        self.get_logger().info("Broadcaster demo started")
+        self.get_logger().info("Broadcaster/Listener demo started")
 
-    def find_part_callback(self):
+    def check_detected_part_cb(self):
         """
         Callback function for the timer. This function is called every 0.5 seconds.
         """
 
-        if not self._found_purple_pump:
-            self.get_logger().info("Searching...")
-            # Iterate over the parts detected in the left bin
-            for part_pose in self._left_bin_parts:
-                if (
-                    part_pose.part.color == self._find_part_color
-                    and part_pose.part.type == self._find_part_type
-                ):  # Found purple pump
-                    self._part_parent_frame = "left_bins_camera_frame"
-                    self._part_pose = part_pose.pose
-                    self._found_purple_pump = True
-                    self.generate_transform(
-                        self._part_parent_frame, self._part_frame, self._part_pose
-                    )
-                    break
-            # Iterate over the parts detected in the right bin
-            for (
-                part_pose
-            ) in self._right_bin_parts:  # part_pose: AdvancedLogicalCameraImage
-                if (
-                    part_pose.part.color == self._find_part_color
-                    and part_pose.part.type == self._find_part_type
-                ):  # Found purple pump
-                    self._part_parent_frame = "right_bins_camera_frame"
-                    self._part_pose = part_pose.pose
-                    self._found_purple_pump = True
-                    self.generate_transform(
-                        self._part_parent_frame, self._part_frame, self._part_pose
-                    )
-                    break
-        else:
+        # If no parts are detected, return
+        if not self._detected_parts:
+            return
+
+        # If the part is found, do not check again
+        if self._transform_done:
+            return
+
+        # Iterate over the detected parts
+        for part_pose in self._detected_parts:
+            self.generate_transform(
+                self._part_parent_frame, self._part_frame, part_pose.pose
+            )
             # Publish the transform
             self.broadcast()
 
@@ -422,35 +388,24 @@ class BroadcasterInterfaceDemo(Node):
         """
         self._tf_dynamic_broadcaster.sendTransform(self._transforms)
 
-    def left_bins_camera_callback(self, msg: AriacAdvancedLogicalCameraImage):
+    def camera_callback(self, msg: AdvancedLogicalCameraImage):
         """
         Callback function for the left_bins_camera subscriber.
         """
-        self._left_bin_parts.clear()
+
+        if self._transform_done:
+            return
+
+        self._detected_parts.clear()
         if len(msg.part_poses) == 0:
-            self.get_logger().warn("No parts detected in left bins")
+            self.get_logger().warn("No parts detected by the camera")
             return
 
         for part_pose in msg.part_poses:
             self.get_logger().info(
-                f"Part detected in left bins: {part_pose.part.type} {part_pose.part.color}"
+                f"Part detected: {part_pose.part.type} {part_pose.part.color}"
             )
-            self._left_bin_parts.append(part_pose)
-
-    def right_bins_camera_callback(self, msg: AriacAdvancedLogicalCameraImage):
-        """
-        Callback function for the right_bins_camera subscriber.
-        """
-        self._right_bin_parts.clear()
-        if len(msg.part_poses) == 0:
-            self.get_logger().warn("No parts detected in right bins")
-            return
-
-        for part_pose in msg.part_poses:
-            self.get_logger().info(
-                f"Part detected in right bins: {part_pose.part.type} {part_pose.part.color}"
-            )
-            self._right_bin_parts.append(part_pose)
+            self._detected_parts.append(part_pose)
 
     def generate_transform(self, parent, child, pose):
         """
@@ -482,30 +437,32 @@ class BroadcasterInterfaceDemo(Node):
         """
         Callback function for the listener timer.
         """
-        try:
-            if self._part_parent_frame is None:
-                self.get_logger().warn("Part parent frame is not set.")
-                return
+        if self._transform_done:
+            return
 
+        try:
             # Get the transform between frames
             transform = self._tf_buffer.lookup_transform(
-                "world", self._part_frame, rclpy.time.Time()
+                "odom", self._part_frame, rclpy.time.Time()
             )
 
             self.get_logger().info(
-                f"Transform between world and {self._part_frame}: \n" + str(transform)
+                f"Transform between odom and {self._part_frame}: \n" + str(transform)
             )
+
+            self._transform_done = True
+
         except TransformException as ex:
             self.get_logger().fatal(
                 f"Could not get transform between world and {self._part_frame}: {str(ex)}"
             )
-            
-def broadcaster_main(args=None):
+
+
+def broadcaster_listener_main(args=None):
     rclpy.init(args=args)
-    node = BroadcasterInterfaceDemo("broadcaster_demo")
-    rclpy.add_node(node)
+    node = BroadcasterListenerInterfaceDemo("broadcaster_listener_demo")
     try:
-        rclpy.spin()
+        rclpy.spin(node)
     except KeyboardInterrupt:
         node.get_logger().info("Keyboard Interrupt (SIGINT) detected")
     finally:

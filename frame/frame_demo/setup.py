@@ -19,7 +19,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "broadcaster_demo = frame_demo.frame_demo_interface:broadcaster_main",
+            "broadcaster_listener_demo = frame_demo.frame_demo_interface:broadcaster_listener_main",
         ],
     },
 )
