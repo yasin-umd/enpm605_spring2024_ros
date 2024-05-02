@@ -12,7 +12,7 @@ from mage_msgs.msg import AdvancedLogicalCameraImage
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.parameter import Parameter
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
-
+import PyKDL
 
 # define different colors
 class Color:
