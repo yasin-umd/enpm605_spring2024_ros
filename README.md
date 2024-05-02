@@ -1,10 +1,16 @@
 
-# Lecture 12: TF Frames, Mapping, and Navigation
+# Lecture 12: TF Frames and Transforms
 
-## TF Frames
-
-### Run the following commands in the terminal to visualize the TF frames
+## Application 1: Broadcast and Listen to TF Frames
 
 ```bash
-roslaunch turtlebot3_gazebo turtlebot3_world.launch
+ros2 launch final_project final_project.launch.py rviz:=true
+ros2 run frame_demo broadcaster_listener_demo
+```
+
+## Application 2: KDL Frames
+
+```bash
+ros2 launch final_project final_project.launch.py
+ros2 run frame_demo kdl_frame_demo
 ```
