@@ -35,12 +35,13 @@ from launch.substitutions import LaunchConfiguration, TextSubstitution
 def generate_launch_description():
     # Get the launch directory
     bringup_dir = get_package_share_directory("custom_nav2_bringup")
+    bringup_dir = get_package_share_directory("custom_nav2_bringup")
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     # Names and poses of the robots
     robots = [
-        {'name': 'robot1', 'x_pose': 0.0, 'y_pose': 0.5, 'z_pose': 0.01},
-        {'name': 'robot2', 'x_pose': 0.0, 'y_pose': -0.5, 'z_pose': 0.01}]
+        {'name': 'robot1', 'x_pose': 1.0, 'y_pose': 2.0, 'z_pose': 0.01},
+        {'name': 'robot2', 'x_pose': 1.0, 'y_pose': 3.0, 'z_pose': 0.01}]
 
     # Simulation settings
     world = LaunchConfiguration('world')
