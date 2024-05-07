@@ -33,7 +33,7 @@ def generate_launch_description():
     )
     pkg_gazebo_ros = get_package_share_directory("gazebo_ros")
     pkg_navigation_demo = get_package_share_directory("navigation_demo")
-
+    pkg_tb3_nav2 = get_package_share_directory("turtlebot3_navigation2")
     use_sim_time = LaunchConfiguration("use_sim_time", default="true")
     x_pose = LaunchConfiguration("x_pose", default="1.0")
     y_pose = LaunchConfiguration("y_pose", default="1.0")
@@ -72,11 +72,24 @@ def generate_launch_description():
         launch_arguments={"x_pose": x_pose, "y_pose": y_pose}.items(),
     )
 
+    # --- Start Nav2 stack ---
+    
+    # Map file
+    map_file = os.path.join(pkg_navigation_demo, "map", "navigation_demo_map.yaml")
+    # Nav2 nodes
+    start_nav2_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_tb3_nav2, "launch", "navigation2.launch.py")
+        ),
+        launch_arguments={"use_sim_time": use_sim_time, "map": map_file}.items(),
+    )
+
+
+    # --- Start RViz ---
     # RViz config file
     rviz_config_file = os.path.join(
         pkg_navigation_demo, "config", "navigation_demo.rviz"
     )
-
     # start rviz only if the argument is set to true
     rviz_cmd = Node(
         package="rviz2",
@@ -95,5 +108,6 @@ def generate_launch_description():
     ld.add_action(robot_state_publisher_cmd)
     ld.add_action(spawn_turtlebot_cmd)
     ld.add_action(rviz_cmd)
+    ld.add_action(start_nav2_cmd)
 
     return ld
