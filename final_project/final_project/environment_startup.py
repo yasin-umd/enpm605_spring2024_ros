@@ -201,12 +201,12 @@ class EnvironmentStartup(Node):
             pass
 
 
-        if not part.type in PartSpawnParams.part_types:
+        if part.type not in PartSpawnParams.part_types:
             self.get_logger().warn(
                 f"{part_info['type']} is not a valid part type")
             return (False, part)
 
-        if not part.color in PartSpawnParams.colors:
+        if part.color not in PartSpawnParams.colors:
             self.get_logger().warn(
                 f"{part_info['color']} is not a valid part color")
             return (False, part)

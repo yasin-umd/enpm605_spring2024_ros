@@ -39,13 +39,14 @@ from launch.substitutions import LaunchConfiguration, TextSubstitution
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory("nav2_bringup")
+    bringup_dir = get_package_share_directory("custom_nav2_bringup")
+    final_project_dir = get_package_share_directory("final_project")
     launch_dir = os.path.join(bringup_dir, "launch")
 
     # Names and poses of the robots
     robots = [
-        {"name": "robot1", "x_pose": 0.0, "y_pose": 0.5, "z_pose": 0.01},
-        {"name": "robot2", "x_pose": 0.0, "y_pose": -0.5, "z_pose": 0.01},
+        {"name": "leader", "x_pose": 1.0, "y_pose": 2.0, "z_pose": 0.01},
+        {"name": "follower", "x_pose": 1.0, "y_pose": 3.0, "z_pose": 0.01},
     ]
 
     # Simulation settings
@@ -64,7 +65,7 @@ def generate_launch_description():
     # Declare the launch arguments
     declare_world_cmd = DeclareLaunchArgument(
         "world",
-        default_value=os.path.join(bringup_dir, "worlds", "world_only.model"),
+        default_value=os.path.join(final_project_dir, "worlds", "enpm605.world"),
         description="Full path to world file to load",
     )
 
@@ -76,7 +77,7 @@ def generate_launch_description():
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         "map",
-        default_value=os.path.join(bringup_dir, "maps", "turtlebot3_world.yaml"),
+        default_value=os.path.join(final_project_dir, "maps", "enpm605.yaml"),
         description="Full path to map file to load",
     )
 
@@ -98,7 +99,7 @@ def generate_launch_description():
 
     declare_autostart_cmd = DeclareLaunchArgument(
         "autostart",
-        default_value="false",
+        default_value="true",
         description="Automatically startup the stacks",
     )
 

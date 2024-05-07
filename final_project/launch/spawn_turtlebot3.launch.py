@@ -23,20 +23,27 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     # Get the urdf file
-    model_folder = 'turtlebot3_waffle'
-    urdf_path = os.path.join(
-        get_package_share_directory('final_project'),
-        'models',
-        model_folder,
-        'model.sdf'
-    )
+   
 
     # Launch configuration variables specific to simulation
     x_pose = LaunchConfiguration('x_pose', default='1')
     y_pose = LaunchConfiguration('y_pose', default='-2')
     yaw_pose = LaunchConfiguration('yaw_pose', default='-1.5707')
+    tb3_model = LaunchConfiguration('tb3_model', default='turtlebot3_waffle')
 
+    # model_folder = 'turtlebot3_waffle'
+    urdf_path = os.path.join(
+        get_package_share_directory("final_project"),
+        "models",
+        tb3_model,
+        "model.sdf",
+    )
+    
     # Declare the launch arguments
+    declare_model_cmd = DeclareLaunchArgument(
+        "tb3_model", default_value="turtlebot3_waffle", description="Model of the turtlebot3"
+    )
+    
     declare_x_position_cmd = DeclareLaunchArgument(
         'x_pose', default_value='1.0',
         description='Specify namespace of the robot')
@@ -69,6 +76,7 @@ def generate_launch_description():
     ld.add_action(declare_x_position_cmd)
     ld.add_action(declare_y_position_cmd)
     ld.add_action(declare_yaw_cmd)
+    ld.add_action(declare_model_cmd)
 
     # Add any conditioned actions
     ld.add_action(start_gazebo_ros_spawner_cmd)

@@ -176,13 +176,10 @@ def launch_setup(context, *args, **kwargs):
         gazebo,
         environment_startup,
         part_spawner_cmd,
-        # start_aruco_detection_node_cmd,
         robot_state_publisher_cmd,
         spawn_turtlebot_cmd,
-        # turtlebot3_navigation2_cmd,
         sensor_tf_broadcaster,
-        static_transform_cmd,
-        # broadcast_cmd,
+        # static_transform_cmd,
         rviz_cmd,
     ]
 
