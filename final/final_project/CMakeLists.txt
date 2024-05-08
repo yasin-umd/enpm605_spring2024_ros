@@ -68,8 +68,8 @@ install(DIRECTORY
   config
   launch
   models
-  worlds
-  maps
+  world
+  map
   DESTINATION share/${PROJECT_NAME}/
 )
 

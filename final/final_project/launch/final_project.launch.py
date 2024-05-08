@@ -26,19 +26,11 @@ from ament_index_python.packages import (
 
 def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration("use_sim_time", default="true")
-    x_pose = LaunchConfiguration("x_pose", default="-10")
-    y_pose = LaunchConfiguration("y_pose", default="10")
-    yaw_pose = LaunchConfiguration("yaw_pose", default="-1.5707")
-    rviz = LaunchConfiguration("rviz", default="false")
-    broadcast = LaunchConfiguration("broadcast", default="false")
 
-    
     # Set the path to this package.
     pkg_share = FindPackageShare(package="final_project").find("final_project")
 
     # Set the path to the world file
-    world_file_name = "enpm605.world"
-    world_path = os.path.join(pkg_share, "worlds", world_file_name)
 
     user_config_path = os.path.join(pkg_share, "config", "sensors.yaml")
 
@@ -47,18 +39,8 @@ def launch_setup(context, *args, **kwargs):
             f"Sensor configuration 'sensors.yaml' not found in config directory: {user_config_path}."
         )
         exit()
-        
-    rviz_config_file = os.path.join(pkg_share, "config", "frame.rviz")
 
-    # Gazebo node
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [FindPackageShare("gazebo_ros"), "/launch", "/gazebo.launch.py"]
-        ),
-        launch_arguments={
-            "world": world_path,
-        }.items(),
-    )
+    rviz_config_file = os.path.join(pkg_share, "config", "frame.rviz")
 
     # Sensor TF
     sensor_tf_broadcaster = Node(
@@ -90,25 +72,6 @@ def launch_setup(context, *args, **kwargs):
         package="ros2_aruco", executable="aruco_node", output="screen"
     )
 
-    map_path = os.path.join(
-        get_package_share_directory("final_project"), "maps", "final2_map.yaml"
-    )
-
-    # Navigation2 node
-    turtlebot3_navigation2_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [
-                FindPackageShare("turtlebot3_navigation2"),
-                "/launch",
-                "/navigation2.launch.py",
-            ]
-        ),
-        launch_arguments={
-            "use_sim_time": "true",
-            "map": map_path,
-        }.items(),
-    )
-
     # static_broadcaster = Node(
     #     package='final_project',
     #     executable='object_tf_broadcaster.py',
@@ -126,61 +89,22 @@ def launch_setup(context, *args, **kwargs):
             "0",  # p
             "0",  # y
             "world",  # frame_id
-            "odom",  # child_frame_id
+            "map",  # child_frame_id
         ],
     )
 
-    
-    # start rviz only if the argument is set to true
-    rviz_cmd = Node(
-        package="rviz2",
-        executable="rviz2",
-        output="screen",
-        arguments=["-d", rviz_config_file],
-        parameters=[{"use_sim_time": use_sim_time}],
-        condition=IfCondition(rviz),
-    )
-    
-    # Run the broadcaster only if the argument is set to true
-    broadcast_cmd = Node(
-        package="frame_demo",
-        executable="broadcaster_listener_demo",
-        output="screen",
-        parameters=[{"use_sim_time": use_sim_time}],
-        condition=IfCondition(broadcast),
-    )
-
-    launch_file_dir = os.path.join(
-        get_package_share_directory("final_project"), "launch"
-    )
-
-    robot_state_publisher_cmd = IncludeLaunchDescription(
+    multi_robots_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(launch_file_dir, "robot_state_publisher.launch.py")
+            os.path.join(pkg_share, "launch", "multi_robots.launch.py")
         ),
-        launch_arguments={"use_sim_time": use_sim_time}.items(),
-    )
-
-    spawn_turtlebot_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(launch_file_dir, "spawn_turtlebot3.launch.py")
-        ),
-        launch_arguments={
-            "x_pose": x_pose,
-            "y_pose": y_pose,
-            "yaw_pose": yaw_pose,
-        }.items(),
     )
 
     nodes_to_start = [
-        gazebo,
         environment_startup,
         part_spawner_cmd,
-        robot_state_publisher_cmd,
-        spawn_turtlebot_cmd,
         sensor_tf_broadcaster,
-        # static_transform_cmd,
-        rviz_cmd,
+        static_transform_cmd,
+        multi_robots_cmd,
     ]
 
     return nodes_to_start
@@ -196,20 +120,12 @@ def generate_launch_description():
             description="name of user configuration file",
         )
     )
-    
+
     declared_arguments.append(
         DeclareLaunchArgument(
             "rviz",
             default_value="false",
             description="Whether to start RViz",
-        )
-    )
-    
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "broadcast",
-            default_value="false",
-            description="Whether to broadcast the new frame",
         )
     )
 

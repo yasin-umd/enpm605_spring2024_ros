@@ -41,8 +41,12 @@ def main():
                             Don't wait if 0.")
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-t', '--turtlebot_type', type=str,
-                       choices=['waffle', 'burger'])
+    group.add_argument(
+        "-t",
+        "--turtlebot_type",
+        type=str,
+        choices=["waffle_follower", "waffle_leader"],
+    )
     group.add_argument('-s', '--sdf', type=str,
                        help="the path to the robot's model file (sdf)")
 
@@ -67,8 +71,8 @@ def main():
     # Get path to the robot's sdf file
     if args.turtlebot_type is not None:
         sdf_file_path = os.path.join(
-            get_package_share_directory('turtlebot3_gazebo'), 'models',
-            f'turtlebot3_{args.turtlebot_type}', 'model.sdf')
+            get_package_share_directory('final_project'), 'models',
+            f'{args.turtlebot_type}', 'model.sdf')
     else:
         sdf_file_path = args.sdf
 

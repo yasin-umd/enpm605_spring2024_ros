@@ -45,17 +45,16 @@ def generate_launch_description():
 
     # Names and poses of the robots
     robots = [
-        {"name": "leader", "x_pose": 1.0, "y_pose": 2.0, "z_pose": 0.01},
-        {"name": "follower", "x_pose": 1.0, "y_pose": 3.0, "z_pose": 0.01},
+        {"name": "leader", "x_pose": 2.0, "y_pose": 1.0, "z_pose": 0.01},
+        {"name": "follower", "x_pose": 1.0, "y_pose": 1.0, "z_pose": 0.01},
     ]
 
     # Simulation settings
     world = LaunchConfiguration("world")
     simulator = LaunchConfiguration("simulator")
 
-    # On this example all robots are launched with the same settings
+    # In this example all robots are launched with the same settings
     map_yaml_file = LaunchConfiguration("map")
-
     autostart = LaunchConfiguration("autostart")
     rviz_config_file = LaunchConfiguration("rviz_config")
     use_robot_state_pub = LaunchConfiguration("use_robot_state_pub")
@@ -65,7 +64,7 @@ def generate_launch_description():
     # Declare the launch arguments
     declare_world_cmd = DeclareLaunchArgument(
         "world",
-        default_value=os.path.join(final_project_dir, "worlds", "enpm605.world"),
+        default_value=os.path.join(final_project_dir, "world", "final.world"),
         description="Full path to world file to load",
     )
 
@@ -77,24 +76,24 @@ def generate_launch_description():
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         "map",
-        default_value=os.path.join(final_project_dir, "maps", "enpm605.yaml"),
+        default_value=os.path.join(final_project_dir, "map", "final_map.yaml"),
         description="Full path to map file to load",
     )
 
     declare_robot1_params_file_cmd = DeclareLaunchArgument(
-        "robot1_params_file",
+        "leader_params_file",
         default_value=os.path.join(
-            bringup_dir, "params", "nav2_multirobot_params_1.yaml"
+            bringup_dir, "params", "leader_params.yaml"
         ),
-        description="Full path to the ROS2 parameters file to use for robot1 launched nodes",
+        description="Full path to the ROS2 parameters file to use for leader launched nodes",
     )
 
     declare_robot2_params_file_cmd = DeclareLaunchArgument(
-        "robot2_params_file",
+        "follower_params_file",
         default_value=os.path.join(
-            bringup_dir, "params", "nav2_multirobot_params_2.yaml"
+            bringup_dir, "params", "follower_params.yaml"
         ),
-        description="Full path to the ROS2 parameters file to use for robot2 launched nodes",
+        description="Full path to the ROS2 parameters file to use for follower launched nodes",
     )
 
     declare_autostart_cmd = DeclareLaunchArgument(
@@ -135,7 +134,13 @@ def generate_launch_description():
 
     # Define commands for spawing the robots into Gazebo
     spawn_robots_cmds = []
+    robot_name = "waffle"
     for robot in robots:
+        if robot["name"] == "leader":
+            robot_name = "waffle_leader"
+        elif robot["name"] == "follower":
+            robot_name = "waffle_follower"
+        
         spawn_robots_cmds.append(
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
@@ -146,7 +151,8 @@ def generate_launch_description():
                     "y_pose": TextSubstitution(text=str(robot["y_pose"])),
                     "z_pose": TextSubstitution(text=str(robot["z_pose"])),
                     "robot_name": robot["name"],
-                    "turtlebot_type": TextSubstitution(text="waffle"),
+                    "turtlebot_type": robot_name,
+                    # "turtlebot_type": turtlebot_type,
                 }.items(),
             )
         )
@@ -183,7 +189,7 @@ def generate_launch_description():
                         "use_rviz": "False",
                         "use_simulator": "False",
                         "headless": "False",
-                        "use_robot_state_pub": use_robot_state_pub,
+                        "use_robot_state_pub": "True"
                     }.items(),
                 ),
                 LogInfo(
