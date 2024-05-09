@@ -70,6 +70,7 @@ install(DIRECTORY
   models
   world
   map
+  urdf
   DESTINATION share/${PROJECT_NAME}/
 )
 

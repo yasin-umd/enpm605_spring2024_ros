@@ -53,7 +53,7 @@ class ArucoNode(rclpy.node.Node):
         self.declare_parameter("aruco_dictionary_id", "DICT_5X5_1000")
         self.declare_parameter("image_topic", "/follower/camera/image_raw")
         self.declare_parameter("camera_info_topic","/follower/camera/camera_info")
-        self.declare_parameter("camera_frame", "camera_rgb_optical_frame")
+        self.declare_parameter("camera_frame", "follower/camera_rgb_optical_frame")
 
         self.marker_size = self.get_parameter(
             "marker_size").get_parameter_value().double_value

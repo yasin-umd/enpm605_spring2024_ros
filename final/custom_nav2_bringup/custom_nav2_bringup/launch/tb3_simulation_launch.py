@@ -27,7 +27,7 @@ from launch.actions import (
 )
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+from launch.substitutions import LaunchConfiguration, PythonExpression, Command
 from launch_ros.actions import Node
 
 
@@ -157,9 +157,20 @@ def generate_launch_description():
         cwd=[launch_dir],
         output="screen",
     )
-    
+
     # print_namespace_cmd =LogInfo(msg=["--- namespace ---", namespace])
-    
+    xacro_file_path = os.path.join(bringup_dir, "urdf", "turtlebot3_waffle.urdf.xacro")
+    robot_desc = Command(
+        [
+            "xacro ",
+            str(xacro_file_path),
+            " frame_prefix:=",
+            namespace,
+            " topic_prefix:=",
+            namespace,
+        ]
+    )
+
     urdf = os.path.join(bringup_dir, "urdf", "turtlebot3_waffle.urdf")
 
     # urdf = ""
@@ -167,13 +178,11 @@ def generate_launch_description():
     #     urdf = os.path.join(bringup_dir, "urdf", "follower_waffle.urdf")
     # elif namespace == "leader":
     #     urdf = os.path.join(bringup_dir, "urdf", "leader_waffle.urdf")
-        
+
     # LogInfo(msg=["URDF ", urdf])
 
     # with open(urdf, "r") as infp:
     #     robot_description = infp.read()
-
-    
 
     start_robot_state_publisher_cmd = Node(
         condition=IfCondition(use_robot_state_pub),
@@ -182,9 +191,15 @@ def generate_launch_description():
         name="robot_state_publisher",
         namespace=namespace,
         output="screen",
-        parameters=[{"use_sim_time": use_sim_time}],
+        # parameters=[{"use_sim_time": use_sim_time}],
         # parameters=[
-        #     {"use_sim_time": use_sim_time, "robot_description": robot_description}
+        #     {
+        #         "use_sim_time": use_sim_time,
+        #         "robot_description": robot_desc,
+        #         "frame_prefix": PythonExpression(
+        #             ["'", LaunchConfiguration("namespace"), "/'"]
+        #         ),
+        #     }
         # ],
         remappings=remappings,
         arguments=[urdf],
@@ -241,6 +256,5 @@ def generate_launch_description():
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(rviz_cmd)
     ld.add_action(bringup_cmd)
-    
 
     return ld
