@@ -89,7 +89,7 @@ def launch_setup(context, *args, **kwargs):
             "0",  # p
             "0",  # y
             "world",  # frame_id
-            "map",  # child_frame_id
+            "leader/map",  # child_frame_id
         ],
     )
 
@@ -110,43 +110,13 @@ def launch_setup(context, *args, **kwargs):
         ),
     )
 
-    # # Publish static transforms from leader to base frame
-    # transform1 = Node(
-    #     package="tf2_ros",
-    #     executable="static_transform_publisher",
-    #     name="leader_to_base_tf",
-    #     arguments=["x", "y", "z", "roll", "pitch", "yaw", "leader", "base_footprint"],
-    #     output="screen",
-    # )
-
-    # # Configure the TF buffer to use the /tf topic
-    # buffer_cmd = Node(
-    #     package="tf2_ros",
-    #     executable="tf2_buffer_server",
-    #     name="tf2_buffer_server",
-    #     output="screen",
-    #     parameters=[
-    #         {"use_tf_static": False},  # Subscribe to /tf instead of /tf_static
-    #         {"subscribe_timeout": 10.0},  # Adjust as needed
-    #     ],
-    # )
-
-    # # Republish the transformed /tf messages to the /tf topic
-    # relay_cmd = Node(
-    #     package="tf2_ros",
-    #     executable="tf2_relay",
-    #     name="tf2_relay",
-    #     output="screen",
-    # )
 
     nodes_to_start = [
-        # environment_startup,
-        # part_spawner_cmd,
-        # sensor_tf_broadcaster,
+        environment_startup,
+        part_spawner_cmd,
+        sensor_tf_broadcaster,
         # static_transform_cmd,
         multi_robots_cmd,
-        # follower_cmd,
-        # leader_cmd,
     ]
 
     return nodes_to_start
