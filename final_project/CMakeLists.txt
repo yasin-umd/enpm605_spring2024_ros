@@ -67,10 +67,12 @@ install(TARGETS
 install(DIRECTORY 
   config
   launch
-  models
-  world
   map
+  models
+  params
+  rviz
   urdf
+  world
   DESTINATION share/${PROJECT_NAME}/
 )
 

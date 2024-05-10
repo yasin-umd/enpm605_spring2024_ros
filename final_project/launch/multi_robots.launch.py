@@ -39,9 +39,8 @@ from launch.substitutions import LaunchConfiguration, TextSubstitution
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory("custom_nav2_bringup")
-    final_project_dir = get_package_share_directory("final_project")
-    launch_dir = os.path.join(bringup_dir, "launch")
+    final_project_pkg = get_package_share_directory("final_project")
+    final_project_launch_dir = os.path.join(final_project_pkg, "launch")
 
     # Names and poses of the robots
     robots = [
@@ -64,7 +63,7 @@ def generate_launch_description():
     # Declare the launch arguments
     declare_world_cmd = DeclareLaunchArgument(
         "world",
-        default_value=os.path.join(final_project_dir, "world", "final.world"),
+        default_value=os.path.join(final_project_pkg, "world", "final.world"),
         description="Full path to world file to load",
     )
 
@@ -76,23 +75,19 @@ def generate_launch_description():
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         "map",
-        default_value=os.path.join(final_project_dir, "map", "final_map.yaml"),
+        default_value=os.path.join(final_project_pkg, "map", "final_map.yaml"),
         description="Full path to map file to load",
     )
 
-    declare_robot1_params_file_cmd = DeclareLaunchArgument(
+    declare_leader_params_file_cmd = DeclareLaunchArgument(
         "leader_params_file",
-        default_value=os.path.join(
-            bringup_dir, "params", "leader_params.yaml"
-        ),
+        default_value=os.path.join(final_project_pkg, "params", "leader_params.yaml"),
         description="Full path to the ROS2 parameters file to use for leader launched nodes",
     )
 
-    declare_robot2_params_file_cmd = DeclareLaunchArgument(
+    declare_follower_params_file_cmd = DeclareLaunchArgument(
         "follower_params_file",
-        default_value=os.path.join(
-            bringup_dir, "params", "follower_params.yaml"
-        ),
+        default_value=os.path.join(final_project_pkg, "params", "follower_params.yaml"),
         description="Full path to the ROS2 parameters file to use for follower launched nodes",
     )
 
@@ -104,7 +99,9 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         "rviz_config",
-        default_value=os.path.join(bringup_dir, "rviz", "nav2_namespaced_view.rviz"),
+        default_value=os.path.join(
+            final_project_pkg, "rviz", "nav2_namespaced_view.rviz"
+        ),
         description="Full path to the RVIZ config file to use.",
     )
 
@@ -144,7 +141,7 @@ def generate_launch_description():
         spawn_robots_cmds.append(
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(
-                    os.path.join(bringup_dir, "launch", "spawn_tb3_launch.py")
+                    os.path.join(final_project_launch_dir, "spawn_tb3_launch.py")
                 ),
                 launch_arguments={
                     "x_pose": TextSubstitution(text=str(robot["x_pose"])),
@@ -166,7 +163,7 @@ def generate_launch_description():
             [
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
-                        os.path.join(launch_dir, "rviz_launch.py")
+                        os.path.join(final_project_launch_dir, "rviz_launch.py")
                     ),
                     condition=IfCondition(use_rviz),
                     launch_arguments={
@@ -177,7 +174,10 @@ def generate_launch_description():
                 ),
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource(
-                        os.path.join(bringup_dir, "launch", "tb3_simulation_launch.py")
+                        os.path.join(
+                            final_project_launch_dir,
+                            "tb3_simulation_launch.py",
+                        )
                     ),
                     launch_arguments={
                         "namespace": robot["name"],
@@ -189,7 +189,7 @@ def generate_launch_description():
                         "use_rviz": "False",
                         "use_simulator": "False",
                         "headless": "False",
-                        "use_robot_state_pub": "True"
+                        "use_robot_state_pub": "True",
                     }.items(),
                 ),
                 LogInfo(
@@ -232,8 +232,8 @@ def generate_launch_description():
     ld.add_action(declare_simulator_cmd)
     ld.add_action(declare_world_cmd)
     ld.add_action(declare_map_yaml_cmd)
-    ld.add_action(declare_robot1_params_file_cmd)
-    ld.add_action(declare_robot2_params_file_cmd)
+    ld.add_action(declare_leader_params_file_cmd)
+    ld.add_action(declare_follower_params_file_cmd)
     ld.add_action(declare_use_rviz_cmd)
     ld.add_action(declare_autostart_cmd)
     ld.add_action(declare_rviz_config_file_cmd)

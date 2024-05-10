@@ -1,5 +1,4 @@
 import os
-import yaml
 import rclpy.logging
 from launch import LaunchDescription
 from launch.actions import (
@@ -8,20 +7,9 @@ from launch.actions import (
     OpaqueFunction,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import (
-    Command,
-    FindExecutable,
-    LaunchConfiguration,
-    PathJoinSubstitution,
-)
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from launch.conditions import IfCondition
-
-from ament_index_python.packages import (
-    get_package_share_directory,
-    PackageNotFoundError,
-)
 
 
 def launch_setup(context, *args, **kwargs):
@@ -84,7 +72,7 @@ def launch_setup(context, *args, **kwargs):
             "0",  # p
             "0",  # y
             "world",  # frame_id
-            "leader/map",  # child_frame_id
+            "map",  # child_frame_id
         ],
     )
 
@@ -100,7 +88,7 @@ def launch_setup(context, *args, **kwargs):
         environment_startup_cmd,
         part_spawner_cmd,
         sensor_broadcaster_cmd,
-        # static_transform_cmd,
+        static_transform_cmd,
         multi_robots_cmd,
         aruco_detection_cmd,
     ]
