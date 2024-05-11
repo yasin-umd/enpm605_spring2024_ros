@@ -16,13 +16,10 @@ def main():
 
     # Spawn sensors
     startup_node.spawn_sensors()
-
-    # Spawn parts in bins
-    # startup_node.spawn_bin_parts()
-
+    
     try:
         rclpy.spin(startup_node)
-    except:
+    except KeyboardInterrupt:
         startup_node.destroy_node()
         rclpy.shutdown()
 

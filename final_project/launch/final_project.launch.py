@@ -49,7 +49,18 @@ def launch_setup(context, *args, **kwargs):
             {"use_sim_time": use_sim_time},
         ],
     )
-
+    
+    
+    # TF relay
+    tf_relay_startup_cmd = Node(
+        package="final_project",
+        executable="tf_relay_main.py",
+        output="screen",
+        parameters=[
+            {"use_sim_time": use_sim_time},
+        ],
+    )
+    
     # Part spawner
     part_spawner_cmd = Node(
         package="final_project", executable="part_spawner.py", output="screen"
@@ -88,9 +99,10 @@ def launch_setup(context, *args, **kwargs):
         environment_startup_cmd,
         part_spawner_cmd,
         sensor_broadcaster_cmd,
-        static_transform_cmd,
+        # static_transform_cmd,
         multi_robots_cmd,
         aruco_detection_cmd,
+        tf_relay_startup_cmd,
     ]
 
     return nodes_to_start

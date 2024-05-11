@@ -86,6 +86,7 @@ install(PROGRAMS
   nodes/sensor_tf_broadcaster.py
   nodes/part_spawner.py
   nodes/object_tf_broadcaster.py
+  nodes/tf_relay_main.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

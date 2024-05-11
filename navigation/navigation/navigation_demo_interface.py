@@ -1,10 +1,11 @@
 from geometry_msgs.msg import PoseStamped
 # from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 
-from navigation.follower_navigator_interface import FollowerNavigatorInterface
-from navigation.follower_navigator_interface import TaskResult as FollowerTaskResult
-from navigation.leader_navigator_interface import LeaderNavigatorInterface
-from navigation.leader_navigator_interface import TaskResult as LeaderTaskResult
+# from navigation.follower_navigator_interface import FollowerNavigatorInterface
+# from navigation.follower_navigator_interface import TaskResult as FollowerTaskResult
+# from navigation.leader_navigator_interface import LeaderNavigatorInterface
+# from navigation.leader_navigator_interface import TaskResult as LeaderTaskResult
+from navigation.robot_navigator_interface import BasicNavigator, TaskResult
 import rclpy
 from rclpy.parameter import Parameter
 from rclpy.node import Node
@@ -24,8 +25,8 @@ class NavigationDemoInterface(Node):
         self.set_parameters([self._sim_time])
 
         # Navigator
-        self._follower_navigator = FollowerNavigatorInterface()
-        self._leader_navigator = LeaderNavigatorInterface()
+        self._follower_navigator = BasicNavigator("leader_navigator", "leader")
+        self._leader_navigator = BasicNavigator("follower_navigator", "follower")
         # Initial pose
         self._leader_initial_pose = PoseStamped()
         self._follower_initial_pose = PoseStamped()
@@ -33,7 +34,7 @@ class NavigationDemoInterface(Node):
         # Set the initial pose of the robot
         self.localize("leader")
         # self.localize("follower")
-        self.navigate(7.0, -1.0, "leader")
+        # self.navigate(7.0, -1.0, "leader")
         # self.navigate(-1.0, -2.0, "follower")
 
         # subscriber to amcl_pose topic in a different ROS_DOMAIN_ID
