@@ -418,11 +418,11 @@
         </inertia>
       </inertial>
       <visual name="aruco_visual">
-        <pose>-0.1 0 -0.08 1.57 0 -1.57</pose>
+        <pose>-0.1 0 0.2 3.14 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://turtlebot3_common/meshes/marker_0/marker_0.dae</uri>
-            <scale>0.0005 0.0005 0.0005</scale>
+            <uri>model://turtlebot3_common/meshes/marker_0/meshes/marker_0.dae</uri>
+            <scale>0.3 0.3 0.3</scale>
           </mesh>
         </geometry>
       </visual>

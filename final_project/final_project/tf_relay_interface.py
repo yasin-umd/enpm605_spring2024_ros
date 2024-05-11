@@ -32,15 +32,13 @@ class TFRelay(Node):
     def tf_callback(self, msg):
         for transform in msg.transforms:
             transform.header.frame_id = self.frame_prefix + transform.header.frame_id
-            self.get_logger().info("Parent: " + str(transform.header.frame_id))
             transform.child_frame_id = self.frame_prefix + transform.child_frame_id
-            self.get_logger().info("Child: " + str(transform.child_frame_id))
             
-            output ="====================\n"
-            output += "Parent: " + str(transform.header.frame_id)
-            output += "Child: " + str(transform.child_frame_id)
-            output += "====================\n"
-            self.get_logger().info(output)
+            # output ="====================\n"
+            # output += "Parent: " + str(transform.header.frame_id)
+            # output += "Child: " + str(transform.child_frame_id)
+            # output += "====================\n"
+            # self.get_logger().info(output)
 
         self.publisher.publish(msg)
         

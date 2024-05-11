@@ -71,7 +71,7 @@ def launch_setup(context, *args, **kwargs):
         package="ros2_aruco", executable="aruco_node", output="screen"
     )
 
-    static_transform_cmd = Node(
+    leader_transform_cmd = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen",
@@ -83,7 +83,23 @@ def launch_setup(context, *args, **kwargs):
             "0",  # p
             "0",  # y
             "world",  # frame_id
-            "map",  # child_frame_id
+            "leader/map",  # child_frame_id
+        ],
+    )
+    
+    follower_transform_cmd = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen",
+        arguments=[
+            "0",  # x
+            "0",  # y
+            "0",  # z
+            "0",  # r
+            "0",  # p
+            "0",  # y
+            "world",  # frame_id
+            "follower/map",  # child_frame_id
         ],
     )
 
@@ -101,8 +117,10 @@ def launch_setup(context, *args, **kwargs):
         sensor_broadcaster_cmd,
         # static_transform_cmd,
         multi_robots_cmd,
-        aruco_detection_cmd,
+        # aruco_detection_cmd,
         tf_relay_startup_cmd,
+        leader_transform_cmd,
+        follower_transform_cmd,
     ]
 
     return nodes_to_start
