@@ -48,9 +48,15 @@ class ArucoNode(rclpy.node.Node):
 
         # Declare and read parameters
         # self.declare_parameter("marker_size", .0625)
-        self.declare_parameter("marker_size", 0.100)
+        self.declare_parameter("marker_size", 0.300)
 
-        self.declare_parameter("aruco_dictionary_id", "DICT_5X5_1000")
+#         dictionary: DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,"
+#  "DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7, "
+#  "DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12,"
+#  "DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16}"
+ 
+        # self.declare_parameter("aruco_dictionary_id", "DICT_5X5_1000")
+        self.declare_parameter("aruco_dictionary_id", "DICT_4X4_1000")
         self.declare_parameter("image_topic", "/follower/camera/image_raw")
         self.declare_parameter("camera_info_topic","/follower/camera/camera_info")
         self.declare_parameter("camera_frame", "follower/camera_rgb_optical_frame")
@@ -91,8 +97,11 @@ class ArucoNode(rclpy.node.Node):
         self.intrinsic_mat = None
         self.distortion = None
 
-        self.aruco_dictionary = cv2.aruco.getPredefinedDictionary(
-            cv2.aruco.DICT_5X5_1000)
+        #         dictionary: DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,"
+        #  "DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7, "
+        #  "DICT_6X6_50=8, DICT_6X6_100=9, DICT_6X6_250=10, DICT_6X6_1000=11, DICT_7X7_50=12,"
+        #  "DICT_7X7_100=13, DICT_7X7_250=14, DICT_7X7_1000=15, DICT_ARUCO_ORIGINAL = 16}"
+        self.aruco_dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
         self.aruco_parameters = cv2.aruco.DetectorParameters()
         self.bridge = CvBridge()
 
@@ -113,8 +122,8 @@ class ArucoNode(rclpy.node.Node):
         markers = ArucoMarkers()
         pose_array = PoseArray()
         
-        markers.header.frame_id = "camera_rgb_optical_frame"
-        pose_array.header.frame_id = "camera_rgb_optical_frame"
+        markers.header.frame_id = "follower/camera_rgb_optical_frame"
+        pose_array.header.frame_id = "follower/camera_rgb_optical_frame"
 
         markers.header.stamp = img_msg.header.stamp
         pose_array.header.stamp = img_msg.header.stamp
