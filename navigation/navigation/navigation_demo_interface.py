@@ -33,7 +33,7 @@ class NavigationDemoInterface(Node):
 
         # Set the initial pose of the robot
         self.localize("leader")
-        # self.localize("follower")
+        self.localize("follower")
         # self.navigate(7.0, -1.0, "leader")
         # self.navigate(-1.0, -2.0, "follower")
 

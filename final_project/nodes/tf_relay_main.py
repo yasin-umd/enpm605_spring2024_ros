@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.executors import SingleThreadedExecutor
-from final_project.tf_relay import TFRelay, TFStaticRelay
+from final_project.tf_relay_interface import TFRelay, TFStaticRelay
 
 def main():
     rclpy.init()
@@ -15,13 +15,17 @@ def main():
 
     try:
         tf_relay_leader = TFRelay(namespace=leader_namespace)
-        tf_static_relay_leader = TFStaticRelay(namespace=leader_namespace)
-        tf_relay_follower = TFRelay(namespace=follower_namespace)
-        tf_static_relay_follower = TFStaticRelay(namespace=follower_namespace)
         tf_relays.append(tf_relay_leader)
-        tf_relays.append(tf_relay_follower)
+        
+        tf_static_relay_leader = TFStaticRelay(namespace=leader_namespace)
         tf_static_relays.append(tf_static_relay_leader)
+        
+        tf_relay_follower = TFRelay(namespace=follower_namespace)
+        tf_relays.append(tf_relay_follower)
+        
+        tf_static_relay_follower = TFStaticRelay(namespace=follower_namespace)
         tf_static_relays.append(tf_static_relay_follower)
+        
 
         for tf_relay in tf_relays:
             executor.add_node(tf_relay)

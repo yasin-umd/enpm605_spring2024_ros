@@ -5,7 +5,7 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSDurabilityPolicy
 
 
 class TFRelay(Node):
-    def __init__(self, namespace, agent):
+    def __init__(self, namespace):
         super().__init__("tf_relay" + "_" + str(namespace))
         tf_topic = "/" + str(namespace) + "/tf"
         self.frame_prefix = str(namespace) + "/"
@@ -32,7 +32,16 @@ class TFRelay(Node):
     def tf_callback(self, msg):
         for transform in msg.transforms:
             transform.header.frame_id = self.frame_prefix + transform.header.frame_id
+            self.get_logger().info("Parent: " + str(transform.header.frame_id))
             transform.child_frame_id = self.frame_prefix + transform.child_frame_id
+            self.get_logger().info("Child: " + str(transform.child_frame_id))
+            
+            output ="====================\n"
+            output += "Parent: " + str(transform.header.frame_id)
+            output += "Child: " + str(transform.child_frame_id)
+            output += "====================\n"
+            self.get_logger().info(output)
+
         self.publisher.publish(msg)
         
 
