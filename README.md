@@ -16,13 +16,10 @@ colcon build
 * Add the following line:
 ```bash
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>
+# Example:
+export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/zeid/enpm605_final_ws/src/enpm605_spring2024_ros/enpm605_final_project/models
 ```
 
-- Example:
-
-    ```bash
-    export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/zeid/enpm605_final_ws/src/enpm605_spring2024_ros/enpm605_final_project/models
-    ```
 
 
 
