@@ -1,7 +1,9 @@
 
 # ROS packages for the final project
 
-## Create a new workspace and clone the repository
+## Prerequisites
+
+### Create a new workspace and clone the repository
 
 ```bash
 mkdir -p ~/enpm605_final_ws/src
@@ -10,7 +12,7 @@ git clone -b final_project https://github.com/zeidk/enpm605_spring2024_ros.git
 cd ~/enpm605_ws
 colcon build
 ```
-## Edit the .bashrc file
+### Edit the .bashrc file
 
 * Edit the .bashrc file to source the new workspace
 * Add the following line:
