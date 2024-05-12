@@ -4,12 +4,15 @@
 
 ## Create a new workspace and clone the repository
 
+It is recommended to create a new workspace for the final project. The following commands will create a new workspace, clone the repository, and build the workspace.
+
 ```bash
 mkdir -p ~/enpm605_final_ws/src
 cd ~/enpm605_final_ws/src
 git clone -b final_project https://github.com/zeidk/enpm605_spring2024_ros.git
 cd ~/enpm605_final_ws
 colcon build
+source install/setup.bash
 ```
 ## Edit the .bashrc file
 
@@ -76,3 +79,13 @@ poses:
 
 As a sanity check, ensure there are no [ERROR] messages in the `~/.ros/log/[most_recent_folder]/launch.log` file. If there are, report them to the instructor.
 
+## Test Navigation
+
+To test the navigation, run the following command:
+
+```bash
+ros2 launch final_project final_project.launch.py
+ros2 launch navigation navigation.launch.py
+```
+
+You should see the robots navigating to the goal locations.
