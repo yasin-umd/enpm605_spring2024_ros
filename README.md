@@ -2,6 +2,13 @@
 
 # Prerequisites for the Final Project
 
+## Install Dependencies
+
+```bash
+sudo apt install ros-galactic-nav2-'*' ros-galactic-navigation2 ros-galactic-turtlebot3'*'
+```
+
+
 ## Create a new workspace and clone the repository
 
 It is recommended to create a new workspace for the final project. The following commands will create a new workspace, clone the repository, and build the workspace.
