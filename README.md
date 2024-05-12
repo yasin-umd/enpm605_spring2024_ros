@@ -2,6 +2,11 @@
 
 # Prerequisites for the Final Project
 
+## Software
+
+- Ubuntu 20.04
+- ROS Galactic
+
 ## Install Dependencies
 
 ```bash
