@@ -87,6 +87,22 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
     
+    leader_odom_map_cmd = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen",
+        arguments=[
+            "0",  # x
+            "0",  # y
+            "0",  # z
+            "0",  # r
+            "0",  # p
+            "0",  # y
+            "leader/map",  # frame_id
+            "leader/odom",  # child_frame_id
+        ],
+    )
+
     follower_transform_cmd = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -100,6 +116,22 @@ def launch_setup(context, *args, **kwargs):
             "0",  # y
             "world",  # frame_id
             "follower/map",  # child_frame_id
+        ],
+    )
+    
+    follower_odom_map_cmd = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="screen",
+        arguments=[
+            "0",  # x
+            "0",  # y
+            "0",  # z
+            "0",  # r
+            "0",  # p
+            "0",  # y
+            "follower/map",  # frame_id
+            "follower/odom",  # child_frame_id
         ],
     )
 
@@ -117,9 +149,11 @@ def launch_setup(context, *args, **kwargs):
         sensor_broadcaster_cmd,
         # static_transform_cmd,
         multi_robots_cmd,
-        # aruco_detection_cmd,
+        aruco_detection_cmd,
         tf_relay_startup_cmd,
         leader_transform_cmd,
+        leader_odom_map_cmd,
+        follower_odom_map_cmd,
         follower_transform_cmd,
     ]
 
