@@ -26,7 +26,7 @@ export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/zeid/enpm605_final_ws/src/enpm
 ```bash
 ros2 launch final_project final_project.launch.py
 ```
-The environment should load with two robots.
+The environment should load with two robots. If you do not see the robots then there is a good chance that the command ```export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>``` was not added to the .bashrc file or the path to the `models` folder is incorrect.
 
 ![Simulation Environment](figures/gazebo.jpg)
 
