@@ -15,6 +15,14 @@ class LeaderNavigationDemoInterface(Node):
     def __init__(self, node_name="leader_navigation", namespace="leader"):
         super().__init__(node_name)
 
+        # Declare the leader_task parameter
+        # This parameter is used to determine the task of the leader robot
+        self.declare_parameter("leader_task", "init")
+        # get the parameter value
+        self._task_param = (
+            self.get_parameter("leader_task").get_parameter_value().string_value
+        )
+        
         # Since we are using Gazebo, we need to set the use_sim_time parameter to True
         self._sim_time = Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)
         self.set_parameters([self._sim_time])
@@ -23,11 +31,16 @@ class LeaderNavigationDemoInterface(Node):
         self._leader_navigator = BasicNavigator(node_name, namespace)
         # Initial pose
         self._leader_initial_pose = PoseStamped()
-        # self._follower_initial_pose = PoseStamped()
-
+        
         # Set the initial pose of the robot
-        self.localize()
-        self.navigate(-0.872918, -7.414840)
+        if self._task_param == "init":
+            self.localize()
+        elif self._task_param == "navigate":
+            self.localize()
+            self.navigate(-0.872918, -7.414840)
+        elif self._task_param == "waypoints":
+            self.localize()
+            self.follow_waypoints()
 
         # subscriber to amcl_pose topic in a different ROS_DOMAIN_ID
         # self._amcl_pose_sub = self.create_subscription(
@@ -36,11 +49,6 @@ class LeaderNavigationDemoInterface(Node):
         #     self.amcl_pose_callback,
         #     10
         # )
-
-        # Navigate to the goal
-        # self.navigate(10.0, 10.0)
-        # Follow the waypoints
-        # self.follow_waypoints()
 
         self.get_logger().info("Leader navigation demo started")
 
@@ -85,26 +93,26 @@ class LeaderNavigationDemoInterface(Node):
         elif result == TaskResult.FAILED:
             self.get_logger().info("Goal failed!")
 
-    # def follow_waypoints(self):
-    #     self._navigator.waitUntilNav2Active()  # Wait until Nav2 is active
+    def follow_waypoints(self):
+        self._leader_navigator.waitUntilNav2Active()  # Wait until Nav2 is active
 
-    #     pose1 = self.create_pose_stamped(-4.0, -3.0, 0.0)
-    #     pose2 = self.create_pose_stamped(4.0, -4.0, 0.0)
-    #     pose3 = self.create_pose_stamped(6.0, 4.0, 0.0)
-    #     waypoints = [pose1, pose2, pose3]
-    #     self._navigator.followWaypoints(waypoints)
+        pose1 = self.create_pose_stamped(-0.872918, -7.414839, 0.0)
+        pose2 = self.create_pose_stamped(-9.752331, -0.288182, 0.0)
+        pose3 = self.create_pose_stamped(-3.941751, 8.195021, 0.0)
+        waypoints = [pose1, pose2, pose3]
+        self._leader_navigator.followWaypoints(waypoints)
 
-    #     while not self._navigator.isTaskComplete():
-    #         feedback = self._navigator.getFeedback()
-    #         self.get_logger().info(f"Feedback: {feedback}")
+        while not self._leader_navigator.isTaskComplete():
+            feedback = self._leader_navigator.getFeedback()
+            self.get_logger().info(f"Feedback: {feedback}")
 
-    #     result = self._navigator.getResult()
-    #     if result == TaskResult.SUCCEEDED:
-    #         self.get_logger().info("Goal succeeded")
-    #     elif result == TaskResult.CANCELED:
-    #         self.get_logger().info("Goal was canceled!")
-    #     elif result == TaskResult.FAILED:
-    #         self.get_logger().info("Goal failed!")
+        result = self._leader_navigator.getResult()
+        if result == TaskResult.SUCCEEDED:
+            self.get_logger().info("Goal succeeded")
+        elif result == TaskResult.CANCELED:
+            self.get_logger().info("Goal was canceled!")
+        elif result == TaskResult.FAILED:
+            self.get_logger().info("Goal failed!")
 
     def create_pose_stamped(self, x: float, y: float, yaw: float) -> PoseStamped:
         """

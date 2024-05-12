@@ -49,8 +49,7 @@ def launch_setup(context, *args, **kwargs):
             {"use_sim_time": use_sim_time},
         ],
     )
-    
-    
+
     # TF relay
     tf_relay_startup_cmd = Node(
         package="final_project",
@@ -60,7 +59,7 @@ def launch_setup(context, *args, **kwargs):
             {"use_sim_time": use_sim_time},
         ],
     )
-    
+
     # Part spawner
     part_spawner_cmd = Node(
         package="final_project", executable="part_spawner.py", output="screen"
@@ -86,7 +85,7 @@ def launch_setup(context, *args, **kwargs):
             "leader/map",  # child_frame_id
         ],
     )
-    
+
     leader_odom_map_cmd = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -118,7 +117,7 @@ def launch_setup(context, *args, **kwargs):
             "follower/map",  # child_frame_id
         ],
     )
-    
+
     follower_odom_map_cmd = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
