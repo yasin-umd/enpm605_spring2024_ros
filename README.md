@@ -1,9 +1,8 @@
 
-# ROS packages for the final project
 
-## Prerequisites
+# Prerequisites for the Final Project
 
-### Create a new workspace and clone the repository
+## Create a new workspace and clone the repository
 
 ```bash
 mkdir -p ~/enpm605_final_ws/src
@@ -12,7 +11,7 @@ git clone -b final_project https://github.com/zeidk/enpm605_spring2024_ros.git
 cd ~/enpm605_final_ws
 colcon build
 ```
-### Edit the .bashrc file
+## Edit the .bashrc file
 
 * Edit the .bashrc file to source the new workspace
 * Add the following line:
@@ -21,14 +20,52 @@ export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>
 # Example:
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/zeid/enpm605_final_ws/src/enpm605_spring2024_ros/enpm605_final_project/models
 ```
-### Test the installation
+## Test the installation
 
 ```bash
 ros2 launch final_project final_project.launch.py
 ```
-The environment should load with two robots. If you do not see the robots then there is a good chance that the command ```export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>``` was not added to the .bashrc file or the path to the `models` folder is incorrect.
+The Gazebo environment should load with two robots (two RViz windows should also load). If you do not see the robots then there is a good chance that the command ```export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>``` was not added to the .bashrc file or the path to the `models` folder is incorrect.
 
 ![Simulation Environment](figures/gazebo.jpg)
 
+## OpenCV Installation
 
+OpenCV is required for the final project. To install OpenCV, run the following command:
+
+```bash
+sudo apt install python3-pip -y
+pip3 uninstall opencv-python
+pip3 uninstall opencv-contrib-python
+pip3 install opencv-contrib-python
+```
+
+Check the installation by running the following command:
+
+```bash
+ros2 launch final_project final_project.launch.py
+ros2 topic echo aruco_poses
+```
+
+You should see the ArUco poses being published to the `aruco_poses` topic (see the image below).
+
+```terminal
+--
+header:
+  stamp:
+    sec: 115
+    nanosec: 171000000
+  frame_id: follower/camera_rgb_optical_frame
+poses:
+- position:
+    x: -0.135574710408108
+    y: -0.3644814647163148
+    z: 2.11904374003013
+  orientation:
+    x: 0.9999708203872018
+    y: 0.00047636197352801814
+    z: -0.0029222579923607874
+    w: -0.00704214893644064
+---
+```
 
