@@ -48,7 +48,7 @@ class ArucoNode(rclpy.node.Node):
 
         # Declare and read parameters
         # self.declare_parameter("marker_size", .0625)
-        self.declare_parameter("marker_size", 0.300)
+        self.declare_parameter("marker_size", 0.33)
 
 #         dictionary: DICT_4X4_50=0, DICT_4X4_100=1, DICT_4X4_250=2,"
 #  "DICT_4X4_1000=3, DICT_5X5_50=4, DICT_5X5_100=5, DICT_5X5_250=6, DICT_5X5_1000=7, "

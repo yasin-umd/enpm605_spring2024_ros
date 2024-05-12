@@ -144,17 +144,17 @@ def launch_setup(context, *args, **kwargs):
 
     # Nodes to start
     nodes_to_start = [
+        multi_robots_cmd,
         environment_startup_cmd,
         part_spawner_cmd,
         sensor_broadcaster_cmd,
         # static_transform_cmd,
-        multi_robots_cmd,
         aruco_detection_cmd,
-        tf_relay_startup_cmd,
         leader_transform_cmd,
         leader_odom_map_cmd,
         follower_odom_map_cmd,
         follower_transform_cmd,
+        tf_relay_startup_cmd,
     ]
 
     return nodes_to_start
