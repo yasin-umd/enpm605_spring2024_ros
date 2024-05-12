@@ -81,7 +81,7 @@ As a sanity check, ensure there are no [ERROR] messages in the `~/.ros/log/[most
 
 ## Test Navigation
 
-To test the navigation, run the following command:
+To test the navigation, run the following commands:
 
 ```bash
 ros2 launch final_project final_project.launch.py
