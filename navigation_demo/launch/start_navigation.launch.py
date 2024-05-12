@@ -42,7 +42,7 @@ def generate_launch_description():
     world = os.path.join(
         pkg_navigation_demo,
         "world",
-        "navigation_demo.world",
+        "final.world",
     )
 
     gzserver_cmd = IncludeLaunchDescription(
