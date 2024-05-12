@@ -20,14 +20,7 @@ export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>
 # Example:
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/zeid/enpm605_final_ws/src/enpm605_spring2024_ros/enpm605_final_project/models
 ```
-## Test the installation
 
-```bash
-ros2 launch final_project final_project.launch.py
-```
-The Gazebo environment should load with two robots (two RViz windows should also load). If you do not see the robots then there is a good chance that the command ```export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>``` was not added to the .bashrc file or the path to the `models` folder is incorrect.
-
-![Simulation Environment](figures/gazebo.jpg)
 
 ## OpenCV Installation
 
@@ -40,14 +33,23 @@ pip3 uninstall opencv-contrib-python
 pip3 install opencv-contrib-python
 ```
 
-Check the installation by running the following command:
+## Test the installation
 
 ```bash
 ros2 launch final_project final_project.launch.py
+```
+The Gazebo environment should load with two robots (two RViz windows should also load). If you do not see the robots then there is a good chance that the command ```export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:<path to the models folder>``` was not added to the .bashrc file or the path to the `models` folder is incorrect.
+
+![Simulation Environment](figures/gazebo.jpg)
+
+## Check OpenCV installation
+
+After starting the simulation, run the following command to check if OpenCV is installed correctly:
+```bash
 ros2 topic echo aruco_poses
 ```
 
-You should see the ArUco poses being published to the `aruco_poses` topic (see the image below).
+You should see the ArUco poses being published to the `aruco_poses` topic (see output examples below).
 
 ```terminal
 --
@@ -68,4 +70,9 @@ poses:
     w: -0.00704214893644064
 ---
 ```
+
+### Troubleshooting
+
+
+As a sanity check, ensure there are no [ERROR] messages in the `~/.ros/log/[most_recent_folder]/launch.log` file. If there are, report them to the instructor.
 
