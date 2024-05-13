@@ -97,7 +97,7 @@ To test the navigation, run the following commands:
 
 ```bash
 ros2 launch final_project final_project.launch.py
-ros2 launch navigation navigation.launch.py follower_task:=navigate leader_task:=navigate
+ros2 launch navigation navigation.launch.py follower:=goal leader:=goal
 ```
 
 You should see both robots going to a goal location. 

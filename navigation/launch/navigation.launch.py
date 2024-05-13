@@ -37,8 +37,8 @@ from launch_ros.substitutions import FindPackageShare
 
 def launch_setup(context, *args, **kwargs):
     use_sim_time = LaunchConfiguration("use_sim_time", default="true")
-    follower_task = LaunchConfiguration("follower_task", default="init")
-    leader_task = LaunchConfiguration("leader_task", default="init")
+    follower_task = LaunchConfiguration("follower", default="init")
+    leader_task = LaunchConfiguration("leader", default="init")
 
     
     # Follower node
@@ -48,7 +48,7 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
         parameters=[
             {"use_sim_time": use_sim_time},
-            {"follower_task": follower_task},
+            {"follower": follower_task},
         ],
     )
 
@@ -59,7 +59,7 @@ def launch_setup(context, *args, **kwargs):
         output="screen",
         parameters=[
             {"use_sim_time": use_sim_time},
-            {"leader_task": leader_task},
+            {"leader": leader_task},
         ],
     )
 
@@ -74,19 +74,19 @@ def generate_launch_description():
 
     declared_arguments.append(
         DeclareLaunchArgument(
-            "leader_task",
+            "leader",
             default_value="init",
             description="Task for the leader robot",
-            choices=["init", "navigate", "waypoints"],
+            choices=["init", "goal", "waypoints"],
         )
     )
 
     declared_arguments.append(
         DeclareLaunchArgument(
-            "follower_task",
+            "follower",
             default_value="init",
             description="Task for the follower robot",
-            choices=["init", "navigate", "waypoints"],
+            choices=["init", "goal", "waypoints"],
         )
     )
 

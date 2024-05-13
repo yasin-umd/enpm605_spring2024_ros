@@ -14,12 +14,12 @@ class FollowerNavigationDemoInterface(Node):
     def __init__(self, node_name="follower_navigation", namespace="follower"):
         super().__init__(node_name)
         
-        # Declare the leader_task parameter
+        # Declare the follower parameter
         # This parameter is used to determine the task of the follower robot
-        self.declare_parameter("follower_task", "init")
+        self.declare_parameter("follower", "init")
         # get the parameter value
         self._task_param = (
-            self.get_parameter("follower_task").get_parameter_value().string_value
+            self.get_parameter("follower").get_parameter_value().string_value
         )
 
         # Since we are using Gazebo, we need to set the use_sim_time parameter to True
@@ -31,10 +31,10 @@ class FollowerNavigationDemoInterface(Node):
         # Initial pose
         self._follower_initial_pose = PoseStamped()
 
-        # Set the initial pose of the robot
+        # Task the follower robot should perform
         if self._task_param == "init":
             self.localize()
-        elif self._task_param == "navigate":
+        elif self._task_param == "goal":
             self.localize()
             self.navigate(-9.752330, -0.288182)
         elif self._task_param == "waypoints":
